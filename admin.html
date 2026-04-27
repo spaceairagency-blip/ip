@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel — IP Tracker</title>
+<title>Admins Panel — IP Tracker</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Syne:wght@400;600;700;800&display=swap');
 
@@ -440,7 +440,7 @@
   // ============================================================
   // CONFIG — paste your GAS URL here (same one as index.html)
   // ============================================================
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbzwSPvKefWjKhefmlgnrdwkDJRX-HgneviqIHAehw5Ohy7rErxpfLfncvqU7bRthxEU/exec";  // e.g. "https://script.google.com/macros/s/ABC123.../exec"
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbyGRvYH600hm4PJIrsB4Bo15j0UAREP6UMiLxryUS82Yjmc6tpcpag2vyi_NbnGxic-/exec";  // e.g. "https://script.google.com/macros/s/ABC123.../exec"
   const ADMIN_PASSWORD = "admin100";  // Change this to your own password!
   // ============================================================
 
@@ -473,8 +473,8 @@
     document.getElementById('pwd-input').value = '';
   }
 
-  // --- LOAD DATA ---
-  async function loadData() {
+  // --- LOAD DATA via JSONP (fixes CORS issue with Google Apps Script) ---
+  function loadData() {
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = `<tr><td colspan="11"><div class="loading-state"><div class="spinner"></div>Fetching visit logs...</div></td></tr>`;
 
@@ -484,14 +484,35 @@
       return;
     }
 
-    try {
-      const res = await fetch(GAS_URL + '?action=get');
-      const data = await res.json();
+    // Remove old JSONP script if any
+    const old = document.getElementById('jsonp-script');
+    if (old) old.remove();
+
+    // Set up global callback
+    const cbName = 'gasCallback_' + Date.now();
+    window[cbName] = function(data) {
+      delete window[cbName];
+      document.getElementById('jsonp-script').remove();
       allRows = data.rows || [];
       renderAll();
-    } catch(e) {
-      tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="big">⚠️</div><p>Could not connect to Google Sheets.<br>Check your GAS_URL is correct and the script is deployed.</p></div></td></tr>`;
-    }
+    };
+
+    // Inject script tag (JSONP - bypasses CORS)
+    const script = document.createElement('script');
+    script.id = 'jsonp-script';
+    script.onerror = function() {
+      tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="big">⚠️</div><p>Could not connect to Google Sheets.<br>Make sure your Apps Script is deployed as "Anyone" access<br>and the GAS_URL is correct.</p></div></td></tr>`;
+    };
+    script.src = GAS_URL + '?action=get&callback=' + cbName;
+    document.body.appendChild(script);
+
+    // Timeout fallback after 10s
+    setTimeout(() => {
+      if (window[cbName]) {
+        delete window[cbName];
+        tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="big">⏱</div><p>Request timed out.<br>Check your Apps Script deployment settings.</p></div></td></tr>`;
+      }
+    }, 10000);
   }
 
   function showDemoData() {
