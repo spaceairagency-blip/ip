@@ -1,24 +1,26 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admins Panel — IP Tracker</title>
+<title>Group Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Syne:wght@400;600;700;800&display=swap');
-
   :root {
-    --bg: #060608;
-    --surface: #0e0e16;
-    --surface2: #14141f;
-    --border: #1a1a2e;
-    --accent: #7c3aed;
-    --accent2: #06d6a0;
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    --text: #e2e8f0;
-    --muted: #475569;
-    --muted2: #94a3b8;
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --accent: #25D366;
+    --accent2: #128C7E;
+    --danger: #FF4444;
+    --warning: #FFB800;
+    --text: #e8e8e8;
+    --muted: #666;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --display: 'Bebas Neue', cursive;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,613 +28,1203 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--sans);
     min-height: 100vh;
   }
 
-  /* LOGIN OVERLAY */
-  #login-overlay {
+  /* SIDEBAR */
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
     position: fixed;
-    inset: 0;
-    background: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    transition: opacity 0.4s ease;
-  }
-  #login-overlay.hidden { opacity: 0; pointer-events: none; }
-
-  .login-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 48px 44px;
-    width: 380px;
-    text-align: center;
-    box-shadow: 0 0 60px rgba(124,58,237,0.12);
-  }
-  .login-card .lock { font-size: 40px; margin-bottom: 20px; }
-  .login-card h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
-  .login-card p { color: var(--muted2); font-family: 'DM Mono', monospace; font-size: 0.8rem; margin-bottom: 28px; }
-
-  .login-card input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 18px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.9rem;
-    letter-spacing: 3px;
-    text-align: center;
-    margin-bottom: 16px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .login-card input:focus { border-color: var(--accent); }
-
-  .btn-login {
-    width: 100%;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 14px;
-    font-family: 'Syne', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.05em;
-  }
-  .btn-login:hover { background: #6d28d9; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(124,58,237,0.4); }
-
-  .login-error {
-    color: var(--danger);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    margin-top: 12px;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .login-error.show { opacity: 1; }
-
-  /* MAIN APP */
-  #app { display: none; }
-  #app.show { display: block; }
-
-  header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 32px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
+    top: 0; left: 0; bottom: 0;
     z-index: 100;
   }
 
-  .header-left { display: flex; align-items: center; gap: 12px; }
   .logo {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--accent), #a855f7);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
+    padding: 28px 20px 24px;
+    border-bottom: 1px solid var(--border);
   }
-  .header-title { font-size: 1rem; font-weight: 700; }
-  .header-sub { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted2); }
 
-  .header-right { display: flex; align-items: center; gap: 12px; }
+  .logo-top {
+    font-family: var(--display);
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .logo-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  .nav { flex: 1; padding: 16px 0; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--muted);
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+    font-family: var(--mono);
+    letter-spacing: 0.5px;
+  }
+
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+
+  .nav-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(37,211,102,0.05);
+  }
+
+  .nav-icon { font-size: 16px; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--danger);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-family: var(--mono);
+  }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* MAIN */
+  .main {
+    margin-left: 240px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    height: 64px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-title {
+    font-family: var(--display);
+    font-size: 22px;
+    letter-spacing: 2px;
+    flex: 1;
+  }
+
+  .topbar-search {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .topbar-search:focus { border-color: var(--accent); }
+  .topbar-search::placeholder { color: var(--muted); }
 
   .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
+    padding: 9px 18px;
+    border-radius: 6px;
+    border: none;
     cursor: pointer;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     transition: all 0.2s;
-    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
   }
-  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .btn-primary:hover { background: #6d28d9; }
-  .btn-ghost { background: transparent; color: var(--muted2); border-color: var(--border); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-primary:hover { background: #1db954; transform: translateY(-1px); }
+
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+  }
+
+  .btn-danger:hover { background: #cc0000; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
   .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
-  .btn-danger { background: transparent; color: var(--danger); border-color: rgba(239,68,68,0.3); }
-  .btn-danger:hover { background: rgba(239,68,68,0.1); }
 
-  main { padding: 32px; max-width: 1400px; margin: 0 auto; }
+  /* CONTENT */
+  .content { padding: 32px; flex: 1; }
 
-  /* STATS CARDS */
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* STATS */
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
-    margin-bottom: 28px;
+    margin-bottom: 32px;
   }
 
   .stat-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px 22px;
+    border-radius: 10px;
+    padding: 20px;
     position: relative;
     overflow: hidden;
-    transition: border-color 0.2s;
   }
-  .stat-card:hover { border-color: var(--accent); }
+
   .stat-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-  }
-  .stat-label { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted2); margin-bottom: 8px; }
-  .stat-value { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; }
-  .stat-value.green { color: var(--accent2); }
-  .stat-value.purple { color: #a78bfa; }
-  .stat-value.orange { color: var(--warning); }
-
-  /* CONTROLS */
-  .controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
   }
 
-  .search-box {
-    flex: 1; min-width: 200px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 16px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.82rem;
-    outline: none;
-    transition: border-color 0.2s;
+  .stat-card.green::before { background: var(--accent); }
+  .stat-card.red::before { background: var(--danger); }
+  .stat-card.yellow::before { background: var(--warning); }
+  .stat-card.teal::before { background: var(--accent2); }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
   }
-  .search-box:focus { border-color: var(--accent); }
-  .search-box::placeholder { color: var(--muted); }
+
+  .stat-value {
+    font-family: var(--display);
+    font-size: 42px;
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+
+  .stat-card.green .stat-value { color: var(--accent); }
+  .stat-card.red .stat-value { color: var(--danger); }
+  .stat-card.yellow .stat-value { color: var(--warning); }
+  .stat-card.teal .stat-value { color: var(--accent2); }
+
+  .stat-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
 
   /* TABLE */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+
   .table-wrap {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 10px;
     overflow: hidden;
   }
 
-  .table-header {
-    padding: 16px 24px;
+  table { width: 100%; border-collapse: collapse; }
+
+  thead {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 14px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-red { background: rgba(255,68,68,0.15); color: var(--danger); }
+  .badge-yellow { background: rgba(255,184,0,0.15); color: var(--warning); }
+  .badge-green { background: rgba(37,211,102,0.15); color: var(--accent); }
+
+  .action-btns { display: flex; gap: 6px; }
+
+  .icon-btn {
+    width: 30px; height: 30px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+
+  .icon-btn:hover { background: var(--surface2); color: var(--text); }
+  .icon-btn.danger:hover { background: rgba(255,68,68,0.1); color: var(--danger); border-color: var(--danger); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 560px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.25s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .modal-header {
+    padding: 24px 28px 20px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
-  .table-header h3 { font-size: 0.9rem; font-weight: 700; }
-  .table-header span { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted2); }
 
-  .table-scroll { overflow-x: auto; }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
+  .modal-title {
+    font-family: var(--display);
+    font-size: 22px;
+    letter-spacing: 2px;
   }
 
-  th {
-    background: var(--surface2);
-    padding: 12px 16px;
-    text-align: left;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted2);
-    font-weight: 400;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    cursor: pointer;
-    user-select: none;
-    transition: color 0.2s;
-  }
-  th:hover { color: var(--text); }
-
-  td {
-    padding: 13px 16px;
-    border-bottom: 1px solid var(--border);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    white-space: nowrap;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--muted2);
-  }
-  td:first-child { color: var(--text); font-weight: 400; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(124,58,237,0.04); color: var(--text); }
-
-  .ip-badge {
-    display: inline-block;
-    background: rgba(124,58,237,0.15);
-    color: #c4b5fd;
-    border-radius: 6px;
-    padding: 3px 8px;
-    font-size: 0.75rem;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    font-family: 'DM Mono', monospace;
-    color: var(--muted);
-  }
-  .empty-state .big { font-size: 3rem; margin-bottom: 12px; }
-  .empty-state p { font-size: 0.8rem; line-height: 1.8; }
-
-  .loading-state {
-    text-align: center;
-    padding: 60px 20px;
-    font-family: 'DM Mono', monospace;
-    color: var(--muted2);
-    font-size: 0.82rem;
-  }
-  .spinner {
+  .modal-close {
     width: 32px; height: 32px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    animation: spin 0.8s linear infinite;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* SETUP BANNER */
-  .setup-banner {
-    background: rgba(245,158,11,0.08);
-    border: 1px solid rgba(245,158,11,0.25);
-    border-radius: 12px;
-    padding: 18px 22px;
-    margin-bottom: 24px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--warning);
-    line-height: 1.9;
-    display: none;
-  }
-  .setup-banner.show { display: block; }
-  .setup-banner strong { font-weight: 700; font-size: 0.88rem; }
+  .modal-close:hover { color: var(--danger); border-color: var(--danger); }
 
-  .pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 16px;
-    border-top: 1px solid var(--border);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    color: var(--muted2);
+  .modal-body { padding: 24px 28px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-row.full { grid-template-columns: 1fr; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+
+  label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
   }
-  .page-btn {
+
+  input, select, textarea {
     background: var(--surface2);
     border: 1px solid var(--border);
-    color: var(--muted2);
     border-radius: 6px;
-    padding: 5px 11px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
   }
-  .page-btn:hover { border-color: var(--accent); color: var(--text); }
-  .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+  textarea { resize: vertical; min-height: 90px; }
+
+  .modal-footer {
+    padding: 20px 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  /* RULES PAGE */
+  .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .rule-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .rule-num {
+    font-family: var(--display);
+    font-size: 36px;
+    color: var(--border);
+    line-height: 1;
+    min-width: 40px;
+  }
+
+  .rule-text { flex: 1; }
+  .rule-title { font-weight: 600; margin-bottom: 4px; font-size: 14px; }
+  .rule-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .rule-actions {
+    display: flex;
+    gap: 6px;
+    position: absolute;
+    top: 14px; right: 14px;
+  }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 9999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 320px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-left: 3px solid var(--accent); }
+  .toast.error { border-left: 3px solid var(--danger); }
+
+  /* VIOLATIONS DETAIL */
+  .violator-name { font-weight: 600; }
+  .violator-phone { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+
+  .rule-tag {
+    display: inline-block;
+    background: rgba(37,211,102,0.08);
+    border: 1px solid rgba(37,211,102,0.2);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(37,211,102,0.05);
+  }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login-overlay">
-  <div class="login-card">
-    <div class="lock">🔐</div>
-    <h2>Admin Access</h2>
-    <p>Enter the admin password to continue</p>
-    <input type="password" id="pwd-input" placeholder="••••••••" />
-    <button class="btn-login" onclick="tryLogin()">Unlock Panel</button>
-    <p class="login-error" id="login-error">Incorrect password. Try again.</p>
-  </div>
-</div>
-
-<!-- APP -->
-<div id="app">
-  <header>
-    <div class="header-left">
-      <div class="logo">🛰</div>
-      <div>
-        <div class="header-title">IP Tracker Admin</div>
-        <div class="header-sub">Visitor Intelligence Panel</div>
-      </div>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-top">ADMIN</div>
+      <div class="logo-sub">GROUP CONTROL</div>
     </div>
-    <div class="header-right">
-      <button class="btn btn-primary" onclick="loadData()">⟳ Refresh</button>
-      <button class="btn btn-ghost" onclick="exportCSV()">↓ Export CSV</button>
-      <button class="btn btn-danger" onclick="logout()">Logout</button>
+    <nav class="nav">
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('violations')">
+        <span class="nav-icon">⚠️</span> Violations
+        <span class="nav-badge" id="viol-badge">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('rules')">
+        <span class="nav-icon">📋</span> Rules
+      </div>
+      <div class="nav-item" onclick="showPage('members')">
+        <span class="nav-icon">👥</span> Members
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="status-dot"></span>DB CONNECTED
     </div>
-  </header>
+  </aside>
 
-  <main>
-    <!-- Setup Warning -->
-    <div class="setup-banner" id="setup-banner">
-      <strong>⚠ Google Sheets not connected yet.</strong><br>
-      To see real visitor data: open <code>admin.html</code>, find <code>const GAS_URL = ""</code> and paste your Apps Script URL.<br>
-      Also update the same variable in <code>index.html</code>.<br>
-      See <strong>README.html</strong> for the full setup guide (takes ~3 minutes).
-    </div>
+  <!-- MAIN -->
+  <main class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">DASHBOARD</div>
+      <input class="topbar-search" type="text" placeholder="Search..." id="search-input" oninput="handleSearch(this.value)">
+      <button class="btn btn-primary" id="topbar-action-btn" onclick="openModal('add-violation')">+ ADD VIOLATION</button>
+    </header>
 
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total Visits</div>
-        <div class="stat-value purple" id="stat-total">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Unique IPs</div>
-        <div class="stat-value green" id="stat-unique">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Today</div>
-        <div class="stat-value" id="stat-today">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Countries</div>
-        <div class="stat-value orange" id="stat-countries">—</div>
-      </div>
-    </div>
+    <div class="content">
 
-    <!-- Controls -->
-    <div class="controls">
-      <input class="search-box" type="text" id="search" placeholder="🔍  Search by IP, location, browser..." oninput="renderTable()" />
-      <button class="btn btn-ghost" onclick="sortBy('timestamp')">Sort: Latest</button>
-      <button class="btn btn-ghost" onclick="sortBy('ip')">Sort: IP</button>
-    </div>
+      <!-- DASHBOARD PAGE -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card red">
+            <div class="stat-label">Total Violations</div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-sub">All time records</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-label">Warned</div>
+            <div class="stat-value" id="stat-warned">0</div>
+            <div class="stat-sub">Active warnings</div>
+          </div>
+          <div class="stat-card teal">
+            <div class="stat-label">Removed</div>
+            <div class="stat-value" id="stat-removed">0</div>
+            <div class="stat-sub">Kicked from group</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Rules Set</div>
+            <div class="stat-value" id="stat-rules">0</div>
+            <div class="stat-sub">Active group rules</div>
+          </div>
+        </div>
 
-    <!-- Table -->
-    <div class="table-wrap">
-      <div class="table-header">
-        <h3>Visitor Log</h3>
-        <span id="row-count">0 entries</span>
+        <div class="section-header">
+          <div class="section-title">RECENT VIOLATIONS</div>
+          <button class="btn btn-ghost" onclick="showPage('violations')">View All →</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Rule Broken</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recent-table">
+              <tr><td colspan="4"><div class="empty"><div class="empty-icon">📭</div>No violations recorded yet</div></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th onclick="sortBy('timestamp')">Timestamp ↕</th>
-              <th onclick="sortBy('ip')">IP Address</th>
-              <th>Location</th>
-              <th>ISP</th>
-              <th>Browser</th>
-              <th>Platform</th>
-              <th>Language</th>
-              <th>Timezone</th>
-              <th>Screen</th>
-              <th>Referrer</th>
-            </tr>
-          </thead>
-          <tbody id="table-body"></tbody>
-        </table>
+
+      <!-- VIOLATIONS PAGE -->
+      <div class="page" id="page-violations">
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterViolations('all', this)">All</button>
+          <button class="filter-btn" onclick="filterViolations('Warned', this)">⚠️ Warned</button>
+          <button class="filter-btn" onclick="filterViolations('Removed', this)">🚫 Removed</button>
+          <button class="filter-btn" onclick="filterViolations('Banned', this)">⛔ Banned</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Member</th>
+                <th>Phone</th>
+                <th>Rule Broken</th>
+                <th>Details</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="violations-table">
+              <tr><td colspan="8"><div class="empty"><div class="empty-icon">✅</div>No violations yet</div></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="pagination" id="pagination"></div>
+
+      <!-- RULES PAGE -->
+      <div class="page" id="page-rules">
+        <div class="section-header">
+          <div class="section-title">GROUP RULES</div>
+          <button class="btn btn-primary" onclick="openModal('add-rule')">+ ADD RULE</button>
+        </div>
+        <div class="rules-grid" id="rules-grid">
+          <div class="empty" style="grid-column:1/-1"><div class="empty-icon">📋</div>No rules added yet</div>
+        </div>
+      </div>
+
+      <!-- MEMBERS PAGE -->
+      <div class="page" id="page-members">
+        <div class="section-header">
+          <div class="section-title">MEMBERS</div>
+          <button class="btn btn-primary" onclick="openModal('add-member')">+ ADD MEMBER</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Joined</th>
+                <th>Violations</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="members-table">
+              <tr><td colspan="6"><div class="empty"><div class="empty-icon">👥</div>No members added yet</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </main>
 </div>
 
+<!-- MODALS -->
+
+<!-- Add Violation Modal -->
+<div class="modal-overlay" id="modal-add-violation">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">ADD VIOLATION</div>
+      <button class="modal-close" onclick="closeModal('add-violation')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Member Name</label>
+          <input type="text" id="viol-name" placeholder="Enter name">
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" id="viol-phone" placeholder="+880...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rule Broken</label>
+          <select id="viol-rule">
+            <option value="">Select rule...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Action Taken</label>
+          <select id="viol-status">
+            <option value="Warned">⚠️ Warned</option>
+            <option value="Removed">🚫 Removed from Group</option>
+            <option value="Banned">⛔ Permanently Banned</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Violation Details</label>
+        <textarea id="viol-details" placeholder="Describe what happened..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="viol-date">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('add-violation')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveViolation()">SAVE VIOLATION</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Rule Modal -->
+<div class="modal-overlay" id="modal-add-rule">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">ADD RULE</div>
+      <button class="modal-close" onclick="closeModal('add-rule')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Rule Title</label>
+        <input type="text" id="rule-title" placeholder="e.g., No Spam">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="rule-desc" placeholder="Explain the rule clearly..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('add-rule')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRule()">SAVE RULE</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Member Modal -->
+<div class="modal-overlay" id="modal-add-member">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">ADD MEMBER</div>
+      <button class="modal-close" onclick="closeModal('add-member')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="mem-name" placeholder="Enter name">
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" id="mem-phone" placeholder="+880...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Join Date</label>
+        <input type="date" id="mem-date">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('add-member')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMember()">SAVE MEMBER</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Violation Modal -->
+<div class="modal-overlay" id="modal-view-violation">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">VIOLATION DETAIL</div>
+      <button class="modal-close" onclick="closeModal('view-violation')">✕</button>
+    </div>
+    <div class="modal-body" id="view-violation-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('view-violation')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <script>
-  // ============================================================
-  // CONFIG — paste your GAS URL here (same one as index.html)
-  // ============================================================
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbyGRvYH600hm4PJIrsB4Bo15j0UAREP6UMiLxryUS82Yjmc6tpcpag2vyi_NbnGxic-/exec";  // e.g. "https://script.google.com/macros/s/ABC123.../exec"
-  const ADMIN_PASSWORD = "admin100";  // Change this to your own password!
-  // ============================================================
+// ===================== IndexedDB =====================
+let db;
+const DB_NAME = 'GroupAdminDB';
+const DB_VER = 1;
 
-  const PER_PAGE = 20;
-  let allRows = [];
-  let filtered = [];
-  let currentSort = { key: 'timestamp', dir: -1 };
-  let page = 1;
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('violations')) {
+        const vs = d.createObjectStore('violations', { keyPath: 'id', autoIncrement: true });
+        vs.createIndex('name', 'name', { unique: false });
+        vs.createIndex('status', 'status', { unique: false });
+      }
+      if (!d.objectStoreNames.contains('rules')) {
+        d.createObjectStore('rules', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!d.objectStoreNames.contains('members')) {
+        const ms = d.createObjectStore('members', { keyPath: 'id', autoIncrement: true });
+        ms.createIndex('phone', 'phone', { unique: false });
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(db); };
+    req.onerror = () => reject(req.error);
+  });
+}
 
-  // --- AUTH ---
-  function tryLogin() {
-    const val = document.getElementById('pwd-input').value;
-    if (val === ADMIN_PASSWORD) {
-      document.getElementById('login-overlay').classList.add('hidden');
-      document.getElementById('app').classList.add('show');
-      loadData();
-    } else {
-      document.getElementById('login-error').classList.add('show');
-      document.getElementById('pwd-input').value = '';
-    }
-  }
+function dbGetAll(store) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
 
-  document.getElementById('pwd-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') tryLogin();
+function dbAdd(store, data) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).add(data);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbDelete(store, id) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).delete(id);
+    req.onsuccess = () => res();
+    req.onerror = () => rej(req.error);
+  });
+}
+
+// ===================== UI State =====================
+let currentFilter = 'all';
+let currentSearch = '';
+let currentPage = 'dashboard';
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(name.toLowerCase().slice(0,4))) n.classList.add('active');
   });
 
-  function logout() {
-    document.getElementById('login-overlay').classList.remove('hidden');
-    document.getElementById('app').classList.remove('show');
-    document.getElementById('pwd-input').value = '';
+  const titles = { dashboard: 'DASHBOARD', violations: 'VIOLATIONS', rules: 'RULES', members: 'MEMBERS' };
+  document.getElementById('topbar-title').textContent = titles[name] || name.toUpperCase();
+
+  const btn = document.getElementById('topbar-action-btn');
+  if (name === 'violations') { btn.textContent = '+ ADD VIOLATION'; btn.onclick = () => openModal('add-violation'); }
+  else if (name === 'rules') { btn.textContent = '+ ADD RULE'; btn.onclick = () => openModal('add-rule'); }
+  else if (name === 'members') { btn.textContent = '+ ADD MEMBER'; btn.onclick = () => openModal('add-member'); }
+  else { btn.textContent = '+ ADD VIOLATION'; btn.onclick = () => openModal('add-violation'); }
+
+  currentPage = name;
+  refreshAll();
+}
+
+// ===================== Modals =====================
+function openModal(name) {
+  if (name === 'add-violation') {
+    document.getElementById('viol-date').value = new Date().toISOString().split('T')[0];
+    populateRulesDropdown();
+  }
+  if (name === 'add-member') {
+    document.getElementById('mem-date').value = new Date().toISOString().split('T')[0];
+  }
+  document.getElementById('modal-' + name).classList.add('open');
+}
+
+function closeModal(name) {
+  document.getElementById('modal-' + name).classList.remove('open');
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// ===================== Violations =====================
+async function saveViolation() {
+  const name = document.getElementById('viol-name').value.trim();
+  const phone = document.getElementById('viol-phone').value.trim();
+  const rule = document.getElementById('viol-rule').value;
+  const status = document.getElementById('viol-status').value;
+  const details = document.getElementById('viol-details').value.trim();
+  const date = document.getElementById('viol-date').value;
+
+  if (!name || !rule || !date) { showToast('Fill all required fields', 'error'); return; }
+
+  await dbAdd('violations', { name, phone, rule, status, details, date });
+  closeModal('add-violation');
+  document.getElementById('viol-name').value = '';
+  document.getElementById('viol-phone').value = '';
+  document.getElementById('viol-details').value = '';
+  showToast('Violation recorded!', 'success');
+  refreshAll();
+}
+
+async function renderViolations(filter = 'all', search = '') {
+  const data = await dbGetAll('violations');
+  let filtered = data;
+  if (filter !== 'all') filtered = filtered.filter(v => v.status === filter);
+  if (search) filtered = filtered.filter(v =>
+    v.name.toLowerCase().includes(search) ||
+    v.rule.toLowerCase().includes(search) ||
+    (v.phone && v.phone.includes(search))
+  );
+
+  // Update badge
+  document.getElementById('viol-badge').textContent = data.length;
+
+  // Recent table (dashboard)
+  const recent = [...data].reverse().slice(0, 5);
+  const rt = document.getElementById('recent-table');
+  if (recent.length === 0) {
+    rt.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="empty-icon">📭</div>No violations yet</div></td></tr>';
+  } else {
+    rt.innerHTML = recent.map(v => `
+      <tr>
+        <td><div class="violator-name">${v.name}</div><div class="violator-phone">${v.phone || '—'}</div></td>
+        <td><span class="rule-tag">${v.rule}</span></td>
+        <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">${v.date}</td>
+        <td>${statusBadge(v.status)}</td>
+      </tr>
+    `).join('');
   }
 
-  // --- LOAD DATA via JSONP (fixes CORS issue with Google Apps Script) ---
-  function loadData() {
-    const tbody = document.getElementById('table-body');
-    tbody.innerHTML = `<tr><td colspan="11"><div class="loading-state"><div class="spinner"></div>Fetching visit logs...</div></td></tr>`;
+  // Violations table
+  const vt = document.getElementById('violations-table');
+  if (filtered.length === 0) {
+    vt.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">✅</div>No violations found</div></td></tr>';
+  } else {
+    vt.innerHTML = filtered.reverse().map((v, i) => `
+      <tr>
+        <td style="font-family:var(--mono);color:var(--muted);font-size:11px">${i + 1}</td>
+        <td><div class="violator-name">${v.name}</div></td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${v.phone || '—'}</td>
+        <td><span class="rule-tag">${v.rule}</span></td>
+        <td style="max-width:160px;font-size:12px;color:var(--muted)">${v.details ? v.details.slice(0,60) + (v.details.length > 60 ? '…' : '') : '—'}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${v.date}</td>
+        <td>${statusBadge(v.status)}</td>
+        <td>
+          <div class="action-btns">
+            <button class="icon-btn" onclick="viewViolation(${v.id})" title="View">👁</button>
+            <button class="icon-btn danger" onclick="deleteViolation(${v.id})" title="Delete">🗑</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
 
-    if (!GAS_URL) {
-      document.getElementById('setup-banner').classList.add('show');
-      showDemoData();
-      return;
+  // Stats
+  document.getElementById('stat-total').textContent = data.length;
+  document.getElementById('stat-warned').textContent = data.filter(v => v.status === 'Warned').length;
+  document.getElementById('stat-removed').textContent = data.filter(v => v.status === 'Removed' || v.status === 'Banned').length;
+}
+
+async function viewViolation(id) {
+  const data = await dbGetAll('violations');
+  const v = data.find(x => x.id === id);
+  if (!v) return;
+  document.getElementById('view-violation-body').innerHTML = `
+    <div style="display:grid;gap:14px">
+      <div><div class="stat-label">Member Name</div><div style="margin-top:4px;font-weight:600">${v.name}</div></div>
+      <div><div class="stat-label">Phone</div><div style="margin-top:4px;font-family:var(--mono);font-size:13px">${v.phone || 'Not provided'}</div></div>
+      <div><div class="stat-label">Rule Broken</div><div style="margin-top:4px"><span class="rule-tag">${v.rule}</span></div></div>
+      <div><div class="stat-label">Action Taken</div><div style="margin-top:4px">${statusBadge(v.status)}</div></div>
+      <div><div class="stat-label">Date</div><div style="margin-top:4px;font-family:var(--mono);font-size:13px">${v.date}</div></div>
+      <div><div class="stat-label">Details</div><div style="margin-top:4px;font-size:13px;color:var(--muted);line-height:1.6">${v.details || 'No details provided.'}</div></div>
+    </div>
+  `;
+  openModal('view-violation');
+}
+
+async function deleteViolation(id) {
+  if (!confirm('Delete this violation record?')) return;
+  await dbDelete('violations', id);
+  showToast('Violation deleted', 'success');
+  refreshAll();
+}
+
+function filterViolations(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderViolations(currentFilter, currentSearch);
+}
+
+function statusBadge(s) {
+  const map = { Warned: 'yellow', Removed: 'red', Banned: 'red' };
+  const icons = { Warned: '⚠️', Removed: '🚫', Banned: '⛔' };
+  return `<span class="badge badge-${map[s] || 'green'}">${icons[s] || ''} ${s}</span>`;
+}
+
+// ===================== Rules =====================
+async function saveRule() {
+  const title = document.getElementById('rule-title').value.trim();
+  const desc = document.getElementById('rule-desc').value.trim();
+  if (!title) { showToast('Rule title is required', 'error'); return; }
+  await dbAdd('rules', { title, desc });
+  document.getElementById('rule-title').value = '';
+  document.getElementById('rule-desc').value = '';
+  closeModal('add-rule');
+  showToast('Rule added!', 'success');
+  refreshAll();
+}
+
+async function renderRules() {
+  const data = await dbGetAll('rules');
+  const grid = document.getElementById('rules-grid');
+  document.getElementById('stat-rules').textContent = data.length;
+
+  if (data.length === 0) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📋</div>No rules added yet</div>';
+    return;
+  }
+
+  grid.innerHTML = data.map((r, i) => `
+    <div class="rule-card">
+      <div class="rule-num">${String(i + 1).padStart(2, '0')}</div>
+      <div class="rule-text">
+        <div class="rule-title">${r.title}</div>
+        <div class="rule-desc">${r.desc || 'No description.'}</div>
+      </div>
+      <div class="rule-actions">
+        <button class="icon-btn danger" onclick="deleteRule(${r.id})" title="Delete">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function deleteRule(id) {
+  if (!confirm('Delete this rule?')) return;
+  await dbDelete('rules', id);
+  showToast('Rule deleted', 'success');
+  refreshAll();
+}
+
+async function populateRulesDropdown() {
+  const rules = await dbGetAll('rules');
+  const sel = document.getElementById('viol-rule');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Select rule...</option>';
+  rules.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.title;
+    opt.textContent = r.title;
+    if (r.title === current) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  if (rules.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = 'General Rule';
+    opt.textContent = 'General Rule';
+    sel.appendChild(opt);
+  }
+}
+
+// ===================== Members =====================
+async function saveMember() {
+  const name = document.getElementById('mem-name').value.trim();
+  const phone = document.getElementById('mem-phone').value.trim();
+  const date = document.getElementById('mem-date').value;
+  if (!name) { showToast('Name is required', 'error'); return; }
+  await dbAdd('members', { name, phone, date });
+  document.getElementById('mem-name').value = '';
+  document.getElementById('mem-phone').value = '';
+  closeModal('add-member');
+  showToast('Member added!', 'success');
+  refreshAll();
+}
+
+async function renderMembers(search = '') {
+  const members = await dbGetAll('members');
+  const violations = await dbGetAll('violations');
+  const tbody = document.getElementById('members-table');
+
+  let filtered = members;
+  if (search) filtered = filtered.filter(m =>
+    m.name.toLowerCase().includes(search) || (m.phone && m.phone.includes(search))
+  );
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">👥</div>No members found</div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(m => {
+    const vcount = violations.filter(v => v.name.toLowerCase() === m.name.toLowerCase()).length;
+    const lastViol = violations.filter(v => v.name.toLowerCase() === m.name.toLowerCase()).pop();
+    const status = lastViol ? lastViol.status : 'Active';
+    return `
+      <tr>
+        <td><div class="violator-name">${m.name}</div></td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${m.phone || '—'}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${m.date || '—'}</td>
+        <td style="font-family:var(--mono);font-size:13px;color:${vcount > 0 ? 'var(--danger)' : 'var(--accent)'}">${vcount}</td>
+        <td>${vcount > 0 ? statusBadge(status) : '<span class="badge badge-green">✅ Active</span>'}</td>
+        <td>
+          <div class="action-btns">
+            <button class="icon-btn danger" onclick="deleteMember(${m.id})" title="Remove">🗑</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function deleteMember(id) {
+  if (!confirm('Remove this member?')) return;
+  await dbDelete('members', id);
+  showToast('Member removed', 'success');
+  refreshAll();
+}
+
+// ===================== Search =====================
+function handleSearch(val) {
+  currentSearch = val.toLowerCase();
+  renderViolations(currentFilter, currentSearch);
+  renderMembers(currentSearch);
+}
+
+// ===================== Refresh All =====================
+async function refreshAll() {
+  await renderViolations(currentFilter, currentSearch);
+  await renderRules();
+  await renderMembers(currentSearch);
+}
+
+// ===================== Toast =====================
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+  t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ===================== Init =====================
+initDB().then(() => {
+  refreshAll();
+  // Seed default rules if empty
+  dbGetAll('rules').then(rules => {
+    if (rules.length === 0) {
+      const defaults = [
+        { title: 'No Spam', desc: 'Do not send repetitive messages, advertisements, or irrelevant links.' },
+        { title: 'No Hate Speech', desc: 'Respect all members. No abusive, offensive, or discriminatory language.' },
+        { title: 'No Fake News', desc: 'Do not spread unverified information or misinformation.' },
+        { title: 'Stay On Topic', desc: 'Keep discussions relevant to the group purpose.' },
+      ];
+      Promise.all(defaults.map(r => dbAdd('rules', r))).then(() => refreshAll());
     }
-
-    // Remove old JSONP script if any
-    const old = document.getElementById('jsonp-script');
-    if (old) old.remove();
-
-    // Set up global callback
-    const cbName = 'gasCallback_' + Date.now();
-    window[cbName] = function(data) {
-      delete window[cbName];
-      document.getElementById('jsonp-script').remove();
-      allRows = data.rows || [];
-      renderAll();
-    };
-
-    // Inject script tag (JSONP - bypasses CORS)
-    const script = document.createElement('script');
-    script.id = 'jsonp-script';
-    script.onerror = function() {
-      tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="big">⚠️</div><p>Could not connect to Google Sheets.<br>Make sure your Apps Script is deployed as "Anyone" access<br>and the GAS_URL is correct.</p></div></td></tr>`;
-    };
-    script.src = GAS_URL + '?action=get&callback=' + cbName;
-    document.body.appendChild(script);
-
-    // Timeout fallback after 10s
-    setTimeout(() => {
-      if (window[cbName]) {
-        delete window[cbName];
-        tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="big">⏱</div><p>Request timed out.<br>Check your Apps Script deployment settings.</p></div></td></tr>`;
-      }
-    }, 10000);
-  }
-
-  function showDemoData() {
-    allRows = [
-      { timestamp: new Date().toISOString(), ip: '203.0.113.42', loc: 'Dhaka, Bangladesh', isp: 'Grameenphone Ltd', browser: 'Chrome', platform: 'Windows', language: 'en-US', timezone: 'Asia/Dhaka', screenRes: '1920x1080', referrer: 'Direct' },
-      { timestamp: new Date(Date.now()-60000).toISOString(), ip: '198.51.100.7', loc: 'London, England, United Kingdom', isp: 'BT Group', browser: 'Firefox', platform: 'macOS', language: 'en-GB', timezone: 'Europe/London', screenRes: '2560x1440', referrer: 'google.com' },
-      { timestamp: new Date(Date.now()-3600000).toISOString(), ip: '192.0.2.155', loc: 'New York, NY, United States', isp: 'Verizon', browser: 'Safari', platform: 'iOS', language: 'en-US', timezone: 'America/New_York', screenRes: '390x844', referrer: 'twitter.com' },
-    ];
-    renderAll();
-  }
-
-  // --- RENDER ---
-  function renderAll() {
-    const q = document.getElementById('search').value.toLowerCase();
-    filtered = allRows.filter(r =>
-      Object.values(r).some(v => String(v).toLowerCase().includes(q))
-    );
-
-    filtered.sort((a, b) => {
-      const av = a[currentSort.key] || '';
-      const bv = b[currentSort.key] || '';
-      return av < bv ? currentSort.dir : av > bv ? -currentSort.dir : 0;
-    });
-
-    updateStats();
-    renderTable();
-  }
-
-  function renderTable() {
-    const q = document.getElementById('search').value.toLowerCase();
-    filtered = allRows.filter(r =>
-      Object.values(r).some(v => String(v).toLowerCase().includes(q))
-    );
-    filtered.sort((a, b) => {
-      const av = a[currentSort.key] || '';
-      const bv = b[currentSort.key] || '';
-      return av < bv ? currentSort.dir : av > bv ? -currentSort.dir : 0;
-    });
-
-    document.getElementById('row-count').textContent = `${filtered.length} entries`;
-
-    const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-    if (page > totalPages) page = 1;
-    const start = (page - 1) * PER_PAGE;
-    const pageRows = filtered.slice(start, start + PER_PAGE);
-
-    const tbody = document.getElementById('table-body');
-    if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="big">🔍</div><p>No visitors yet.<br>Share your index.html URL to start tracking.</p></div></td></tr>`;
-    } else {
-      tbody.innerHTML = pageRows.map((r, i) => `
-        <tr>
-          <td>${start + i + 1}</td>
-          <td>${formatTime(r.timestamp)}</td>
-          <td><span class="ip-badge">${r.ip || '—'}</span></td>
-          <td>${r.loc || '—'}</td>
-          <td>${r.isp || '—'}</td>
-          <td>${r.browser || '—'}</td>
-          <td>${r.platform || '—'}</td>
-          <td>${r.language || '—'}</td>
-          <td>${r.timezone || '—'}</td>
-          <td>${r.screenRes || '—'}</td>
-          <td>${r.referrer || '—'}</td>
-        </tr>
-      `).join('');
-    }
-
-    renderPagination(totalPages);
-  }
-
-  function formatTime(iso) {
-    if (!iso) return '—';
-    try { return new Date(iso).toLocaleString(); } catch(e) { return iso; }
-  }
-
-  function renderPagination(totalPages) {
-    const el = document.getElementById('pagination');
-    if (totalPages <= 1) { el.innerHTML = ''; return; }
-    let html = `<button class="page-btn" onclick="goPage(${page-1})" ${page===1?'disabled':''}>‹ Prev</button>`;
-    for (let i = 1; i <= totalPages; i++) {
-      if (i === 1 || i === totalPages || Math.abs(i - page) <= 2) {
-        html += `<button class="page-btn ${i===page?'active':''}" onclick="goPage(${i})">${i}</button>`;
-      } else if (Math.abs(i - page) === 3) {
-        html += `<span style="color:var(--muted)">…</span>`;
-      }
-    }
-    html += `<button class="page-btn" onclick="goPage(${page+1})" ${page===totalPages?'disabled':''}>Next ›</button>`;
-    el.innerHTML = html;
-  }
-
-  function goPage(p) { page = p; renderTable(); }
-
-  function sortBy(key) {
-    if (currentSort.key === key) currentSort.dir *= -1;
-    else { currentSort.key = key; currentSort.dir = -1; }
-    renderTable();
-  }
-
-  function updateStats() {
-    document.getElementById('stat-total').textContent = allRows.length;
-    const uniqueIPs = new Set(allRows.map(r => r.ip)).size;
-    document.getElementById('stat-unique').textContent = uniqueIPs;
-    const today = new Date().toDateString();
-    const todayCount = allRows.filter(r => r.timestamp && new Date(r.timestamp).toDateString() === today).length;
-    document.getElementById('stat-today').textContent = todayCount;
-    const countries = new Set(allRows.map(r => (r.loc || '').split(',').pop().trim())).size;
-    document.getElementById('stat-countries').textContent = countries;
-  }
-
-  function exportCSV() {
-    if (filtered.length === 0) return alert('No data to export.');
-    const cols = ['timestamp','ip','loc','isp','browser','platform','language','timezone','screenRes','referrer'];
-    const header = cols.join(',');
-    const rows = filtered.map(r => cols.map(c => `"${(r[c]||'').replace(/"/g,'""')}"`).join(','));
-    const csv = [header, ...rows].join('\n');
-    const a = document.createElement('a');
-    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-    a.download = `ip-log-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-  }
+  });
+}).catch(e => showToast('DB Error: ' + e.message, 'error'));
 </script>
 </body>
 </html>
