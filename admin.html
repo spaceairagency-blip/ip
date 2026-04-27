@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — IP Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #060608;
+    --surface: #0e0e16;
+    --surface2: #14141f;
+    --border: #1a1a2e;
+    --accent: #7c3aed;
+    --accent2: #06d6a0;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #475569;
+    --muted2: #94a3b8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* LOGIN OVERLAY */
+  #login-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: opacity 0.4s ease;
+  }
+  #login-overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 44px;
+    width: 380px;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(124,58,237,0.12);
+  }
+  .login-card .lock { font-size: 40px; margin-bottom: 20px; }
+  .login-card h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+  .login-card p { color: var(--muted2); font-family: 'DM Mono', monospace; font-size: 0.8rem; margin-bottom: 28px; }
+
+  .login-card input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+    text-align: center;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .login-card input:focus { border-color: var(--accent); }
+
+  .btn-login {
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .btn-login:hover { background: #6d28d9; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(124,58,237,0.4); }
+
+  .login-error {
+    color: var(--danger);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    margin-top: 12px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .login-error.show { opacity: 1; }
+
+  /* MAIN APP */
+  #app { display: none; }
+  #app.show { display: block; }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), #a855f7);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .header-title { font-size: 1rem; font-weight: 700; }
+  .header-sub { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted2); }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { background: #6d28d9; }
+  .btn-ghost { background: transparent; color: var(--muted2); border-color: var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .btn-danger { background: transparent; color: var(--danger); border-color: rgba(239,68,68,0.3); }
+  .btn-danger:hover { background: rgba(239,68,68,0.1); }
+
+  main { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* STATS CARDS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--accent); }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .stat-label { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted2); margin-bottom: 8px; }
+  .stat-value { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; }
+  .stat-value.green { color: var(--accent2); }
+  .stat-value.purple { color: #a78bfa; }
+  .stat-value.orange { color: var(--warning); }
+
+  /* CONTROLS */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex: 1; min-width: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--muted); }
+
+  /* TABLE */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .table-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .table-header h3 { font-size: 0.9rem; font-weight: 700; }
+  .table-header span { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted2); }
+
+  .table-scroll { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  th {
+    background: var(--surface2);
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted2);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+  }
+  th:hover { color: var(--text); }
+
+  td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--muted2);
+  }
+  td:first-child { color: var(--text); font-weight: 400; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(124,58,237,0.04); color: var(--text); }
+
+  .ip-badge {
+    display: inline-block;
+    background: rgba(124,58,237,0.15);
+    color: #c4b5fd;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+  }
+  .empty-state .big { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.8rem; line-height: 1.8; }
+
+  .loading-state {
+    text-align: center;
+    padding: 60px 20px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted2);
+    font-size: 0.82rem;
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SETUP BANNER */
+  .setup-banner {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--warning);
+    line-height: 1.9;
+    display: none;
+  }
+  .setup-banner.show { display: block; }
+  .setup-banner strong { font-weight: 700; font-size: 0.88rem; }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted2);
+  }
+  .page-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted2);
+    border-radius: 6px;
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+  }
+  .page-btn:hover { border-color: var(--accent); color: var(--text); }
+  .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div class="lock">🔐</div>
+    <h2>Admin Access</h2>
+    <p>Enter the admin password to continue</p>
+    <input type="password" id="pwd-input" placeholder="••••••••" />
+    <button class="btn-login" onclick="tryLogin()">Unlock Panel</button>
+    <p class="login-error" id="login-error">Incorrect password. Try again.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="header-left">
+      <div class="logo">🛰</div>
+      <div>
+        <div class="header-title">IP Tracker Admin</div>
+        <div class="header-sub">Visitor Intelligence Panel</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-primary" onclick="loadData()">⟳ Refresh</button>
+      <button class="btn btn-ghost" onclick="exportCSV()">↓ Export CSV</button>
+      <button class="btn btn-danger" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Setup Warning -->
+    <div class="setup-banner" id="setup-banner">
+      <strong>⚠ Google Sheets not connected yet.</strong><br>
+      To see real visitor data: open <code>admin.html</code>, find <code>const GAS_URL = ""</code> and paste your Apps Script URL.<br>
+      Also update the same variable in <code>index.html</code>.<br>
+      See <strong>README.html</strong> for the full setup guide (takes ~3 minutes).
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Visits</div>
+        <div class="stat-value purple" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unique IPs</div>
+        <div class="stat-value green" id="stat-unique">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Today</div>
+        <div class="stat-value" id="stat-today">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Countries</div>
+        <div class="stat-value orange" id="stat-countries">—</div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <input class="search-box" type="text" id="search" placeholder="🔍  Search by IP, location, browser..." oninput="renderTable()" />
+      <button class="btn btn-ghost" onclick="sortBy('timestamp')">Sort: Latest</button>
+      <button class="btn btn-ghost" onclick="sortBy('ip')">Sort: IP</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <h3>Visitor Log</h3>
+        <span id="row-count">0 entries</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th onclick="sortBy('timestamp')">Timestamp ↕</th>
+              <th onclick="sortBy('ip')">IP Address</th>
+              <th>Location</th>
+              <th>ISP</th>
+              <th>Browser</th>
+              <th>Platform</th>
+              <th>Language</th>
+              <th>Timezone</th>
+              <th>Screen</th>
+              <th>Referrer</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // ============================================================
+  // CONFIG — paste your GAS URL here (same one as index.html)
+  // ============================================================
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbzwSPvKefWjKhefmlgnrdwkDJRX-HgneviqIHAehw5Ohy7rErxpfLfncvqU7bRthxEU/exec";  // e.g. "https://script.google.com/macros/s/ABC123.../exec"
+  const ADMIN_PASSWORD = "admin100";  // Change this to your own password!
+  // ============================================================
+
+  const PER_PAGE = 20;
+  let allRows = [];
+  let filtered = [];
+  let currentSort = { key: 'timestamp', dir: -1 };
+  let page = 1;
+
+  // --- AUTH ---
+  function tryLogin() {
+    const val = document.getElementById('pwd-input').value;
+    if (val === ADMIN_PASSWORD) {
+      document.getElementById('login-overlay').classList.add('hidden');
+      document.getElementById('app').classList.add('show');
+      loadData();
+    } else {
+      document.getElementById('login-error').classList.add('show');
+      document.getElementById('pwd-input').value = '';
+    }
+  }
+
+  document.getElementById('pwd-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') tryLogin();
+  });
+
+  function logout() {
+    document.getElementById('login-overlay').classList.remove('hidden');
+    document.getElementById('app').classList.remove('show');
+    document.getElementById('pwd-input').value = '';
+  }
+
+  // --- LOAD DATA ---
+  async function loadData() {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = `<tr><td colspan="11"><div class="loading-state"><div class="spinner"></div>Fetching visit logs...</div></td></tr>`;
+
+    if (!GAS_URL) {
+      document.getElementById('setup-banner').classList.add('show');
+      showDemoData();
+      return;
+    }
+
+    try {
+      const res = await fetch(GAS_URL + '?action=get');
+      const data = await res.json();
+      allRows = data.rows || [];
+      renderAll();
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="big">⚠️</div><p>Could not connect to Google Sheets.<br>Check your GAS_URL is correct and the script is deployed.</p></div></td></tr>`;
+    }
+  }
+
+  function showDemoData() {
+    allRows = [
+      { timestamp: new Date().toISOString(), ip: '203.0.113.42', loc: 'Dhaka, Bangladesh', isp: 'Grameenphone Ltd', browser: 'Chrome', platform: 'Windows', language: 'en-US', timezone: 'Asia/Dhaka', screenRes: '1920x1080', referrer: 'Direct' },
+      { timestamp: new Date(Date.now()-60000).toISOString(), ip: '198.51.100.7', loc: 'London, England, United Kingdom', isp: 'BT Group', browser: 'Firefox', platform: 'macOS', language: 'en-GB', timezone: 'Europe/London', screenRes: '2560x1440', referrer: 'google.com' },
+      { timestamp: new Date(Date.now()-3600000).toISOString(), ip: '192.0.2.155', loc: 'New York, NY, United States', isp: 'Verizon', browser: 'Safari', platform: 'iOS', language: 'en-US', timezone: 'America/New_York', screenRes: '390x844', referrer: 'twitter.com' },
+    ];
+    renderAll();
+  }
+
+  // --- RENDER ---
+  function renderAll() {
+    const q = document.getElementById('search').value.toLowerCase();
+    filtered = allRows.filter(r =>
+      Object.values(r).some(v => String(v).toLowerCase().includes(q))
+    );
+
+    filtered.sort((a, b) => {
+      const av = a[currentSort.key] || '';
+      const bv = b[currentSort.key] || '';
+      return av < bv ? currentSort.dir : av > bv ? -currentSort.dir : 0;
+    });
+
+    updateStats();
+    renderTable();
+  }
+
+  function renderTable() {
+    const q = document.getElementById('search').value.toLowerCase();
+    filtered = allRows.filter(r =>
+      Object.values(r).some(v => String(v).toLowerCase().includes(q))
+    );
+    filtered.sort((a, b) => {
+      const av = a[currentSort.key] || '';
+      const bv = b[currentSort.key] || '';
+      return av < bv ? currentSort.dir : av > bv ? -currentSort.dir : 0;
+    });
+
+    document.getElementById('row-count').textContent = `${filtered.length} entries`;
+
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+    if (page > totalPages) page = 1;
+    const start = (page - 1) * PER_PAGE;
+    const pageRows = filtered.slice(start, start + PER_PAGE);
+
+    const tbody = document.getElementById('table-body');
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="big">🔍</div><p>No visitors yet.<br>Share your index.html URL to start tracking.</p></div></td></tr>`;
+    } else {
+      tbody.innerHTML = pageRows.map((r, i) => `
+        <tr>
+          <td>${start + i + 1}</td>
+          <td>${formatTime(r.timestamp)}</td>
+          <td><span class="ip-badge">${r.ip || '—'}</span></td>
+          <td>${r.loc || '—'}</td>
+          <td>${r.isp || '—'}</td>
+          <td>${r.browser || '—'}</td>
+          <td>${r.platform || '—'}</td>
+          <td>${r.language || '—'}</td>
+          <td>${r.timezone || '—'}</td>
+          <td>${r.screenRes || '—'}</td>
+          <td>${r.referrer || '—'}</td>
+        </tr>
+      `).join('');
+    }
+
+    renderPagination(totalPages);
+  }
+
+  function formatTime(iso) {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleString(); } catch(e) { return iso; }
+  }
+
+  function renderPagination(totalPages) {
+    const el = document.getElementById('pagination');
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+    let html = `<button class="page-btn" onclick="goPage(${page-1})" ${page===1?'disabled':''}>‹ Prev</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - page) <= 2) {
+        html += `<button class="page-btn ${i===page?'active':''}" onclick="goPage(${i})">${i}</button>`;
+      } else if (Math.abs(i - page) === 3) {
+        html += `<span style="color:var(--muted)">…</span>`;
+      }
+    }
+    html += `<button class="page-btn" onclick="goPage(${page+1})" ${page===totalPages?'disabled':''}>Next ›</button>`;
+    el.innerHTML = html;
+  }
+
+  function goPage(p) { page = p; renderTable(); }
+
+  function sortBy(key) {
+    if (currentSort.key === key) currentSort.dir *= -1;
+    else { currentSort.key = key; currentSort.dir = -1; }
+    renderTable();
+  }
+
+  function updateStats() {
+    document.getElementById('stat-total').textContent = allRows.length;
+    const uniqueIPs = new Set(allRows.map(r => r.ip)).size;
+    document.getElementById('stat-unique').textContent = uniqueIPs;
+    const today = new Date().toDateString();
+    const todayCount = allRows.filter(r => r.timestamp && new Date(r.timestamp).toDateString() === today).length;
+    document.getElementById('stat-today').textContent = todayCount;
+    const countries = new Set(allRows.map(r => (r.loc || '').split(',').pop().trim())).size;
+    document.getElementById('stat-countries').textContent = countries;
+  }
+
+  function exportCSV() {
+    if (filtered.length === 0) return alert('No data to export.');
+    const cols = ['timestamp','ip','loc','isp','browser','platform','language','timezone','screenRes','referrer'];
+    const header = cols.join(',');
+    const rows = filtered.map(r => cols.map(c => `"${(r[c]||'').replace(/"/g,'""')}"`).join(','));
+    const csv = [header, ...rows].join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = `ip-log-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+  }
+</script>
+</body>
+</html>

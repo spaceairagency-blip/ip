@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Syne:wght@400;700;800&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #7c3aed;
+    --accent2: #06d6a0;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --glow: rgba(124, 58, 237, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridMove 20s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes gridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(50px); }
+  }
+
+  /* Floating orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    pointer-events: none;
+    animation: float 8s ease-in-out infinite;
+  }
+  .orb1 { width: 400px; height: 400px; background: var(--accent); top: -100px; right: -100px; animation-delay: 0s; }
+  .orb2 { width: 300px; height: 300px; background: var(--accent2); bottom: -80px; left: -80px; animation-delay: -4s; }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(20px, -20px) scale(1.05); }
+  }
+
+  .card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 60px 56px;
+    max-width: 520px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 0 60px var(--glow), 0 24px 60px rgba(0,0,0,0.5);
+    animation: cardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, var(--accent), transparent 50%, var(--accent2));
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 28px;
+    background: linear-gradient(135deg, var(--accent), #a855f7);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 8px 24px rgba(124,58,237,0.4);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 8px 24px rgba(124,58,237,0.4); }
+    50% { box-shadow: 0 8px 40px rgba(124,58,237,0.7); }
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fff 30%, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+  }
+
+  .status-box {
+    background: rgba(6, 214, 160, 0.06);
+    border: 1px solid rgba(6, 214, 160, 0.2);
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    text-align: left;
+    margin-bottom: 28px;
+  }
+
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 12px;
+  }
+  .status-row:last-child { border-bottom: none; }
+  .status-label { color: var(--muted); font-size: 0.75rem; }
+  .status-value {
+    color: var(--accent2);
+    font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 260px;
+  }
+  .status-value.loading {
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent2);
+    margin-right: 8px;
+    animation: blink 1.2s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .logged-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(6,214,160,0.1);
+    border: 1px solid rgba(6,214,160,0.3);
+    color: var(--accent2);
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 400;
+    margin-bottom: 16px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .logged-badge.show { opacity: 1; }
+  .logged-badge .check { font-size: 1rem; }
+
+  .error-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #f87171;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    margin-bottom: 16px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .error-badge.show { opacity: 1; }
+
+  .setup-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 8px;
+  }
+
+  .admin-link {
+    display: inline-block;
+    margin-top: 24px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .admin-link:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    background: rgba(124,58,237,0.08);
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<div class="card">
+  <div class="icon">🌐</div>
+  <h1>You've Arrived</h1>
+  <p class="subtitle">Your connection info is being quietly noted.<br>Nothing personal — just the internet doing its thing.</p>
+
+  <div class="status-box">
+    <div class="status-row">
+      <span class="status-label"><span class="dot"></span>IP Address</span>
+      <span class="status-value loading" id="ip-val">resolving...</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">Location</span>
+      <span class="status-value loading" id="loc-val">—</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">ISP</span>
+      <span class="status-value loading" id="isp-val">—</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">Browser</span>
+      <span class="status-value" id="browser-val">—</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">Platform</span>
+      <span class="status-value" id="platform-val">—</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">Timestamp</span>
+      <span class="status-value" id="time-val">—</span>
+    </div>
+  </div>
+
+  <div class="logged-badge" id="logged-badge">
+    <span class="check">✓</span> Visit logged to spreadsheet
+  </div>
+  <div class="error-badge" id="error-badge">
+    ⚠ Setup needed — see instructions below
+  </div>
+
+  <p class="setup-note" id="setup-note"></p>
+
+  <a href="admin.html" class="admin-link">→ Admin Panel</a>
+</div>
+
+<script>
+  // ============================================================
+  // STEP 1: Paste your Google Apps Script Web App URL here
+  // (Leave blank until you've set up the sheet — see README)
+  // ============================================================
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbzwSPvKefWjKhefmlgnrdwkDJRX-HgneviqIHAehw5Ohy7rErxpfLfncvqU7bRthxEU/exec";  // e.g. "https://script.google.com/macros/s/ABC123.../exec"
+
+  // ============================================================
+
+  const $ = id => document.getElementById(id);
+
+  function detectBrowser(ua) {
+    if (ua.includes('Edg')) return 'Microsoft Edge';
+    if (ua.includes('OPR') || ua.includes('Opera')) return 'Opera';
+    if (ua.includes('Chrome')) return 'Chrome';
+    if (ua.includes('Firefox')) return 'Firefox';
+    if (ua.includes('Safari')) return 'Safari';
+    return 'Unknown';
+  }
+
+  function detectPlatform(ua) {
+    if (ua.includes('Android')) return 'Android';
+    if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS';
+    if (ua.includes('Windows')) return 'Windows';
+    if (ua.includes('Mac')) return 'macOS';
+    if (ua.includes('Linux')) return 'Linux';
+    return 'Unknown';
+  }
+
+  const ua = navigator.userAgent;
+  $('browser-val').textContent = detectBrowser(ua);
+  $('browser-val').classList.remove('loading');
+  $('platform-val').textContent = detectPlatform(ua);
+  $('platform-val').classList.remove('loading');
+  $('time-val').textContent = new Date().toLocaleString();
+
+  async function init() {
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      const data = await res.json();
+
+      const ip = data.ip || 'N/A';
+      const loc = [data.city, data.region, data.country_name].filter(Boolean).join(', ') || 'Unknown';
+      const isp = data.org || 'Unknown';
+
+      $('ip-val').textContent = ip;
+      $('ip-val').classList.remove('loading');
+      $('loc-val').textContent = loc;
+      $('loc-val').classList.remove('loading');
+      $('isp-val').textContent = isp;
+      $('isp-val').classList.remove('loading');
+
+      const visitData = {
+        ip, loc, isp,
+        browser: detectBrowser(ua),
+        platform: detectPlatform(ua),
+        userAgent: ua,
+        timestamp: new Date().toISOString(),
+        referrer: document.referrer || 'Direct',
+        screenRes: `${screen.width}x${screen.height}`,
+        language: navigator.language,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+
+      if (GAS_URL) {
+        await fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(visitData)
+        });
+        $('logged-badge').classList.add('show');
+      } else {
+        $('error-badge').classList.add('show');
+        $('setup-note').textContent = '⚙ Open index.html and paste your Google Apps Script URL into the GAS_URL variable. See README.html for full instructions.';
+      }
+
+    } catch(e) {
+      $('ip-val').textContent = 'Error';
+      $('ip-val').classList.remove('loading');
+      $('loc-val').textContent = 'Could not fetch';
+      $('loc-val').classList.remove('loading');
+      $('isp-val').textContent = '—';
+      $('isp-val').classList.remove('loading');
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

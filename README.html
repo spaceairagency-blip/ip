@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setup Guide — IP Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Syne:wght@400;600;700;800&display=swap');
+  :root { --bg:#0a0a0f; --surface:#111118; --border:#1e1e2e; --accent:#7c3aed; --accent2:#06d6a0; --text:#e2e8f0; --muted:#64748b; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Syne',sans-serif; padding:40px 20px; }
+  .wrap { max-width:760px; margin:0 auto; }
+  h1 { font-size:2rem; font-weight:800; margin-bottom:8px; background:linear-gradient(135deg,#fff 30%,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .subtitle { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--muted); margin-bottom:40px; }
+  .step { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px 30px; margin-bottom:20px; position:relative; }
+  .step-num { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; background:var(--accent); border-radius:8px; font-size:0.9rem; font-weight:800; margin-bottom:14px; }
+  .step h2 { font-size:1.05rem; font-weight:700; margin-bottom:10px; }
+  .step p { color:#94a3b8; font-family:'DM Mono',monospace; font-size:0.8rem; line-height:1.85; }
+  .step a { color:#a78bfa; }
+  pre { background:#060608; border:1px solid var(--border); border-radius:10px; padding:16px 18px; font-family:'DM Mono',monospace; font-size:0.78rem; color:var(--accent2); margin:14px 0; overflow-x:auto; line-height:1.7; white-space:pre; }
+  .badge { display:inline-block; background:rgba(6,214,160,0.12); color:var(--accent2); border-radius:6px; padding:2px 8px; font-family:'DM Mono',monospace; font-size:0.75rem; }
+  .warn { background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:10px; padding:14px 18px; font-family:'DM Mono',monospace; font-size:0.78rem; color:#fbbf24; margin-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>⚙ Setup Guide</h1>
+  <p class="subtitle">Connect your IP Tracker to Google Sheets in ~3 minutes</p>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <h2>Create a Google Sheet</h2>
+    <p>Go to <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> and create a new spreadsheet.<br>
+    Name it anything you like, e.g. <span class="badge">IP Tracker Logs</span><br>
+    In Row 1, add these headers exactly:</p>
+    <pre>Timestamp | IP | Location | ISP | Browser | Platform | Language | Timezone | Screen | Referrer | UserAgent</pre>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <h2>Open Apps Script</h2>
+    <p>In your Google Sheet, click <strong>Extensions → Apps Script</strong>.<br>
+    Delete any existing code and paste this entire script:</p>
+    <pre>const SHEET_NAME = "Sheet1"; // Change if your sheet tab has a different name
+
+function doPost(e) {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    const data = JSON.parse(e.postData.contents);
+    sheet.appendRow([
+      data.timestamp || new Date().toISOString(),
+      data.ip || "",
+      data.loc || "",
+      data.isp || "",
+      data.browser || "",
+      data.platform || "",
+      data.language || "",
+      data.timezone || "",
+      data.screenRes || "",
+      data.referrer || "",
+      data.userAgent || ""
+    ]);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "ok" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "error", message: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  const action = e.parameter.action;
+  if (action === "get") {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    const data = sheet.getDataRange().getValues();
+    const headers = ["timestamp","ip","loc","isp","browser","platform","language","timezone","screenRes","referrer","userAgent"];
+    const rows = data.slice(1).map(row => {
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = row[i] || "");
+      return obj;
+    });
+    return ContentService
+      .createTextOutput(JSON.stringify({ rows }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: "ok" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <h2>Deploy as Web App</h2>
+    <p>
+    1. Click <strong>Deploy → New Deployment</strong><br>
+    2. Click the ⚙ gear icon → select <strong>Web app</strong><br>
+    3. Set <strong>Execute as:</strong> Me<br>
+    4. Set <strong>Who has access:</strong> Anyone<br>
+    5. Click <strong>Deploy</strong> → Authorize when prompted<br>
+    6. <strong>Copy the Web App URL</strong> — it looks like:<br>
+    <code style="color:#a78bfa;font-size:0.78rem">https://script.google.com/macros/s/ABC.../exec</code>
+    </p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <h2>Paste URL into your files</h2>
+    <p>Open both <strong>index.html</strong> and <strong>admin.html</strong> in a text editor.<br>
+    Find this line in each file and paste your URL:</p>
+    <pre>const GAS_URL = "";  // ← paste your URL between the quotes</pre>
+    <p>Also change the admin password in <strong>admin.html</strong>:</p>
+    <pre>const ADMIN_PASSWORD = "admin123";  // ← change this!</pre>
+    <div class="warn">⚠ Re-deploy the Apps Script after any code changes. Always use "New deployment" not "Manage deployments" to update.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <h2>You're done! 🎉</h2>
+    <p>
+    • Open <strong>index.html</strong> in your browser — your IP will be logged to the sheet.<br>
+    • Open <strong>admin.html</strong> → log in with your password → see all visits.<br>
+    • Host both files on any static host: GitHub Pages, Netlify, Vercel, etc.<br>
+    • The Google Sheet updates in real-time every time someone visits.
+    </p>
+  </div>
+</div>
+</body>
+</html>
