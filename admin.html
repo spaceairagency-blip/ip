@@ -8,1223 +8,284 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --surface2: #1a1a1a;
-    --border: #222222;
-    --accent: #25D366;
-    --accent2: #128C7E;
-    --danger: #FF4444;
-    --warning: #FFB800;
-    --text: #e8e8e8;
-    --muted: #666;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'IBM Plex Sans', sans-serif;
-    --display: 'Bebas Neue', cursive;
+    --bg: #0a0a0a; --surface: #111111; --surface2: #1a1a1a; --border: #222222;
+    --accent: #25D366; --accent2: #128C7E; --danger: #FF4444; --warning: #FFB800;
+    --text: #e8e8e8; --muted: #666; --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif; --display: 'Bebas Neue', cursive;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-  }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
 
   /* SIDEBAR */
   .layout { display: flex; min-height: 100vh; }
-
-  .sidebar {
-    width: 240px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    z-index: 100;
-  }
-
-  .logo {
-    padding: 28px 20px 24px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .logo-top {
-    font-family: var(--display);
-    font-size: 28px;
-    letter-spacing: 2px;
-    color: var(--accent);
-    line-height: 1;
-  }
-
-  .logo-sub {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 3px;
-    margin-top: 4px;
-  }
-
+  .sidebar { width: 240px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+  .logo { padding: 28px 20px 24px; border-bottom: 1px solid var(--border); }
+  .logo-top { font-family: var(--display); font-size: 28px; letter-spacing: 2px; color: var(--accent); line-height: 1; }
+  .logo-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 3px; margin-top: 4px; }
   .nav { flex: 1; padding: 16px 0; }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--muted);
-    border-left: 3px solid transparent;
-    transition: all 0.2s;
-    font-family: var(--mono);
-    letter-spacing: 0.5px;
-  }
-
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; cursor: pointer; font-size: 13px; color: var(--muted); border-left: 3px solid transparent; transition: all 0.2s; font-family: var(--mono); letter-spacing: 0.5px; }
   .nav-item:hover { color: var(--text); background: var(--surface2); }
-
-  .nav-item.active {
-    color: var(--accent);
-    border-left-color: var(--accent);
-    background: rgba(37,211,102,0.05);
-  }
-
-  .nav-icon { font-size: 16px; }
-
-  .nav-badge {
-    margin-left: auto;
-    background: var(--danger);
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-family: var(--mono);
-  }
-
-  .sidebar-footer {
-    padding: 16px 20px;
-    border-top: 1px solid var(--border);
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  .status-dot {
-    display: inline-block;
-    width: 7px; height: 7px;
-    background: var(--accent);
-    border-radius: 50%;
-    margin-right: 6px;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(37,211,102,0.05); }
+  .nav-badge { margin-left: auto; background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-family: var(--mono); }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .status-dot { display: inline-block; width: 7px; height: 7px; background: var(--accent); border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   /* MAIN */
-  .main {
-    margin-left: 240px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .topbar {
-    height: 64px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    padding: 0 32px;
-    gap: 16px;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-  }
-
-  .topbar-title {
-    font-family: var(--display);
-    font-size: 22px;
-    letter-spacing: 2px;
-    flex: 1;
-  }
-
-  .topbar-search {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 8px 14px;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 12px;
-    width: 220px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .topbar-search:focus { border-color: var(--accent); }
-  .topbar-search::placeholder { color: var(--muted); }
-
-  .btn {
-    padding: 9px 18px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-  }
-
-  .btn-primary {
-    background: var(--accent);
-    color: #000;
-  }
-
-  .btn-primary:hover { background: #1db954; transform: translateY(-1px); }
-
-  .btn-danger {
-    background: var(--danger);
-    color: white;
-  }
-
-  .btn-danger:hover { background: #cc0000; }
-
-  .btn-ghost {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border);
-  }
-
-  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+  .topbar { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 32px; gap: 16px; position: sticky; top: 0; z-index: 50; }
+  .topbar-title { font-family: var(--display); font-size: 22px; letter-spacing: 2px; flex: 1; }
+  .topbar-search { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 14px; color: var(--text); font-family: var(--mono); font-size: 12px; width: 220px; outline: none; }
+  .btn { padding: 9px 18px; border-radius: 6px; border: none; cursor: pointer; font-family: var(--mono); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; transition: 0.2s; }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
 
   /* CONTENT */
   .content { padding: 32px; flex: 1; }
-
-  /* PAGES */
   .page { display: none; }
   .page.active { display: block; }
 
   /* STATS */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-  }
-
-  .stat-card.green::before { background: var(--accent); }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
   .stat-card.red::before { background: var(--danger); }
   .stat-card.yellow::before { background: var(--warning); }
   .stat-card.teal::before { background: var(--accent2); }
+  .stat-card.green::before { background: var(--accent); }
+  .stat-label { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+  .stat-value { font-family: var(--display); font-size: 42px; line-height: 1; letter-spacing: 1px; }
 
-  .stat-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .stat-value {
-    font-family: var(--display);
-    font-size: 42px;
-    line-height: 1;
-    letter-spacing: 1px;
-  }
-
-  .stat-card.green .stat-value { color: var(--accent); }
-  .stat-card.red .stat-value { color: var(--danger); }
-  .stat-card.yellow .stat-value { color: var(--warning); }
-  .stat-card.teal .stat-value { color: var(--accent2); }
-
-  .stat-sub {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 6px;
-  }
-
-  /* TABLE */
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-
-  .section-title {
-    font-family: var(--display);
-    font-size: 20px;
-    letter-spacing: 2px;
-    color: var(--text);
-  }
-
-  .table-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
+  /* TABLE & CARDS */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
   table { width: 100%; border-collapse: collapse; }
-
-  thead {
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-  }
-
-  th {
-    padding: 12px 16px;
-    text-align: left;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-
-  td {
-    padding: 14px 16px;
-    font-size: 13px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle;
-  }
-
-  tr:last-child td { border-bottom: none; }
-
-  tr:hover td { background: rgba(255,255,255,0.02); }
-
-  .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 4px;
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-
+  th { padding: 12px 16px; text-align: left; font-family: var(--mono); font-size: 10px; color: var(--muted); background: var(--surface2); }
+  td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-family: var(--mono); font-size: 10px; font-weight: 600; }
   .badge-red { background: rgba(255,68,68,0.15); color: var(--danger); }
-  .badge-yellow { background: rgba(255,184,0,0.15); color: var(--warning); }
   .badge-green { background: rgba(37,211,102,0.15); color: var(--accent); }
-
-  .action-btns { display: flex; gap: 6px; }
-
-  .icon-btn {
-    width: 30px; height: 30px;
-    border-radius: 5px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    transition: all 0.15s;
-  }
-
-  .icon-btn:hover { background: var(--surface2); color: var(--text); }
-  .icon-btn.danger:hover { background: rgba(255,68,68,0.1); color: var(--danger); border-color: var(--danger); }
-
-  /* MODAL */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.8);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-  }
-
-  .modal-overlay.open { display: flex; }
-
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    width: 560px;
-    max-width: 95vw;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: slideUp 0.25s ease;
-  }
-
-  @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-
-  .modal-header {
-    padding: 24px 28px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .modal-title {
-    font-family: var(--display);
-    font-size: 22px;
-    letter-spacing: 2px;
-  }
-
-  .modal-close {
-    width: 32px; height: 32px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: transparent;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-
-  .modal-close:hover { color: var(--danger); border-color: var(--danger); }
-
-  .modal-body { padding: 24px 28px; }
-
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .form-row.full { grid-template-columns: 1fr; }
-
-  .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-
-  label {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  input, select, textarea {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 12px;
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-  }
-
-  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-  select option { background: var(--surface2); }
-  textarea { resize: vertical; min-height: 90px; }
-
-  .modal-footer {
-    padding: 20px 28px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-  }
-
-  /* RULES PAGE */
+  .rule-tag { background: rgba(37,211,102,0.08); border: 1px solid rgba(37,211,102,0.2); color: var(--accent); font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; }
   .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .rule-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; display: flex; gap: 16px; position: relative; }
+  .rule-num { font-family: var(--display); font-size: 36px; color: var(--border); line-height: 1; }
 
-  .rule-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-    position: relative;
-  }
-
-  .rule-num {
-    font-family: var(--display);
-    font-size: 36px;
-    color: var(--border);
-    line-height: 1;
-    min-width: 40px;
-  }
-
-  .rule-text { flex: 1; }
-  .rule-title { font-weight: 600; margin-bottom: 4px; font-size: 14px; }
-  .rule-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
-
-  .rule-actions {
-    display: flex;
-    gap: 6px;
-    position: absolute;
-    top: 14px; right: 14px;
-  }
-
-  /* EMPTY STATE */
-  .empty {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 1px;
-  }
-
-  .empty-icon { font-size: 40px; margin-bottom: 12px; }
-
-  /* TOAST */
-  .toast {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 18px;
-    font-family: var(--mono);
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 9999;
-    transform: translateY(80px);
-    opacity: 0;
-    transition: all 0.3s ease;
-    max-width: 320px;
-  }
-
+  /* MODALS & TOAST */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; width: 560px; max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 24px 28px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+  .modal-body { padding: 24px 28px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  input, select, textarea { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 10px; color: var(--text); font-family: var(--sans); }
+  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; font-family: var(--mono); font-size: 12px; z-index: 9999; transform: translateY(80px); opacity: 0; transition: 0.3s; }
   .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.success { border-left: 3px solid var(--accent); }
-  .toast.error { border-left: 3px solid var(--danger); }
-
-  /* VIOLATIONS DETAIL */
-  .violator-name { font-weight: 600; }
-  .violator-phone { font-size: 11px; color: var(--muted); font-family: var(--mono); }
-
-  .rule-tag {
-    display: inline-block;
-    background: rgba(37,211,102,0.08);
-    border: 1px solid rgba(37,211,102,0.2);
-    color: var(--accent);
-    font-family: var(--mono);
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 3px;
-  }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  .filter-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-
-  .filter-btn {
-    padding: 6px 14px;
-    border-radius: 5px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .filter-btn.active, .filter-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(37,211,102,0.05);
-  }
 </style>
 </head>
 <body>
 
 <div class="layout">
-  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="logo">
-      <div class="logo-top">ADMIN</div>
-      <div class="logo-sub">GROUP CONTROL</div>
-    </div>
+    <div class="logo"><div class="logo-top">ADMIN</div><div class="logo-sub">GROUP CONTROL</div></div>
     <nav class="nav">
-      <div class="nav-item active" onclick="showPage('dashboard')">
-        <span class="nav-icon">📊</span> Dashboard
-      </div>
-      <div class="nav-item" onclick="showPage('violations')">
-        <span class="nav-icon">⚠️</span> Violations
-        <span class="nav-badge" id="viol-badge">0</span>
-      </div>
-      <div class="nav-item" onclick="showPage('rules')">
-        <span class="nav-icon">📋</span> Rules
-      </div>
-      <div class="nav-item" onclick="showPage('members')">
-        <span class="nav-icon">👥</span> Members
-      </div>
+      <div class="nav-item active" onclick="showPage('dashboard')">📊 Dashboard</div>
+      <div class="nav-item" onclick="showPage('violations')">⚠️ Violations <span class="nav-badge" id="viol-badge">0</span></div>
+      <div class="nav-item" onclick="showPage('rules')">📋 Rules</div>
+      <div class="nav-item" onclick="showPage('members')">👥 Members</div>
     </nav>
-    <div class="sidebar-footer">
-      <span class="status-dot"></span>DB CONNECTED
-    </div>
+    <div class="sidebar-footer"><span class="status-dot"></span>CLOUD CONNECTED</div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
-    <!-- TOPBAR -->
     <header class="topbar">
       <div class="topbar-title" id="topbar-title">DASHBOARD</div>
-      <input class="topbar-search" type="text" placeholder="Search..." id="search-input" oninput="handleSearch(this.value)">
+      <input class="topbar-search" type="text" placeholder="Search..." oninput="handleSearch(this.value)">
       <button class="btn btn-primary" id="topbar-action-btn" onclick="openModal('add-violation')">+ ADD VIOLATION</button>
     </header>
 
     <div class="content">
-
-      <!-- DASHBOARD PAGE -->
       <div class="page active" id="page-dashboard">
         <div class="stats-grid">
-          <div class="stat-card red">
-            <div class="stat-label">Total Violations</div>
-            <div class="stat-value" id="stat-total">0</div>
-            <div class="stat-sub">All time records</div>
-          </div>
-          <div class="stat-card yellow">
-            <div class="stat-label">Warned</div>
-            <div class="stat-value" id="stat-warned">0</div>
-            <div class="stat-sub">Active warnings</div>
-          </div>
-          <div class="stat-card teal">
-            <div class="stat-label">Removed</div>
-            <div class="stat-value" id="stat-removed">0</div>
-            <div class="stat-sub">Kicked from group</div>
-          </div>
-          <div class="stat-card green">
-            <div class="stat-label">Rules Set</div>
-            <div class="stat-value" id="stat-rules">0</div>
-            <div class="stat-sub">Active group rules</div>
-          </div>
-        </div>
-
-        <div class="section-header">
-          <div class="section-title">RECENT VIOLATIONS</div>
-          <button class="btn btn-ghost" onclick="showPage('violations')">View All →</button>
+          <div class="stat-card red"><div class="stat-label">Total Violations</div><div class="stat-value" id="stat-total">0</div></div>
+          <div class="stat-card yellow"><div class="stat-label">Warned</div><div class="stat-value" id="stat-warned">0</div></div>
+          <div class="stat-card teal"><div class="stat-label">Removed</div><div class="stat-value" id="stat-removed">0</div></div>
+          <div class="stat-card green"><div class="stat-label">Rules Set</div><div class="stat-value" id="stat-rules">0</div></div>
         </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>Member</th>
-                <th>Rule Broken</th>
-                <th>Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="recent-table">
-              <tr><td colspan="4"><div class="empty"><div class="empty-icon">📭</div>No violations recorded yet</div></td></tr>
-            </tbody>
+            <thead><tr><th>Member</th><th>Rule Broken</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody id="recent-table"></tbody>
           </table>
         </div>
       </div>
 
-      <!-- VIOLATIONS PAGE -->
       <div class="page" id="page-violations">
-        <div class="filter-bar">
-          <button class="filter-btn active" onclick="filterViolations('all', this)">All</button>
-          <button class="filter-btn" onclick="filterViolations('Warned', this)">⚠️ Warned</button>
-          <button class="filter-btn" onclick="filterViolations('Removed', this)">🚫 Removed</button>
-          <button class="filter-btn" onclick="filterViolations('Banned', this)">⛔ Banned</button>
-        </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Member</th>
-                <th>Phone</th>
-                <th>Rule Broken</th>
-                <th>Details</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="violations-table">
-              <tr><td colspan="8"><div class="empty"><div class="empty-icon">✅</div>No violations yet</div></td></tr>
-            </tbody>
+            <thead><tr><th>Member</th><th>Phone</th><th>Rule</th><th>Details</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="violations-table"></tbody>
           </table>
         </div>
       </div>
 
-      <!-- RULES PAGE -->
       <div class="page" id="page-rules">
-        <div class="section-header">
-          <div class="section-title">GROUP RULES</div>
-          <button class="btn btn-primary" onclick="openModal('add-rule')">+ ADD RULE</button>
-        </div>
-        <div class="rules-grid" id="rules-grid">
-          <div class="empty" style="grid-column:1/-1"><div class="empty-icon">📋</div>No rules added yet</div>
-        </div>
+        <div class="rules-grid" id="rules-grid"></div>
       </div>
 
-      <!-- MEMBERS PAGE -->
       <div class="page" id="page-members">
-        <div class="section-header">
-          <div class="section-title">MEMBERS</div>
-          <button class="btn btn-primary" onclick="openModal('add-member')">+ ADD MEMBER</button>
-        </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Joined</th>
-                <th>Violations</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="members-table">
-              <tr><td colspan="6"><div class="empty"><div class="empty-icon">👥</div>No members added yet</div></td></tr>
-            </tbody>
+            <thead><tr><th>Name</th><th>Phone</th><th>Violations</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="members-table"></tbody>
           </table>
         </div>
       </div>
-
     </div>
   </main>
 </div>
 
-<!-- MODALS -->
-
-<!-- Add Violation Modal -->
 <div class="modal-overlay" id="modal-add-violation">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">ADD VIOLATION</div>
-      <button class="modal-close" onclick="closeModal('add-violation')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">ADD VIOLATION</div><button onclick="closeModal('add-violation')">✕</button></div>
     <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Member Name</label>
-          <input type="text" id="viol-name" placeholder="Enter name">
-        </div>
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="text" id="viol-phone" placeholder="+880...">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Rule Broken</label>
-          <select id="viol-rule">
-            <option value="">Select rule...</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Action Taken</label>
-          <select id="viol-status">
-            <option value="Warned">⚠️ Warned</option>
-            <option value="Removed">🚫 Removed from Group</option>
-            <option value="Banned">⛔ Permanently Banned</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Violation Details</label>
-        <textarea id="viol-details" placeholder="Describe what happened..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Date</label>
-        <input type="date" id="viol-date">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('add-violation')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveViolation()">SAVE VIOLATION</button>
+      <div class="form-group"><label>Member Name</label><input type="text" id="viol-name"></div>
+      <div class="form-group"><label>Phone</label><input type="text" id="viol-phone"></div>
+      <div class="form-group"><label>Rule Broken</label><select id="viol-rule"></select></div>
+      <div class="form-group"><label>Action</label><select id="viol-status">
+          <option value="Warned">Warned</option><option value="Removed">Removed</option><option value="Banned">Banned</option>
+      </select></div>
+      <div class="form-group"><label>Details</label><textarea id="viol-details"></textarea></div>
+      <button class="btn btn-primary" onclick="saveViolation()">SAVE TO CLOUD</button>
     </div>
   </div>
 </div>
 
-<!-- Add Rule Modal -->
 <div class="modal-overlay" id="modal-add-rule">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">ADD RULE</div>
-      <button class="modal-close" onclick="closeModal('add-rule')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">ADD RULE</div><button onclick="closeModal('add-rule')">✕</button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label>Rule Title</label>
-        <input type="text" id="rule-title" placeholder="e.g., No Spam">
-      </div>
-      <div class="form-group">
-        <label>Description</label>
-        <textarea id="rule-desc" placeholder="Explain the rule clearly..."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('add-rule')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveRule()">SAVE RULE</button>
+      <div class="form-group"><label>Title</label><input type="text" id="rule-title"></div>
+      <div class="form-group"><label>Description</label><textarea id="rule-desc"></textarea></div>
+      <button class="btn btn-primary" onclick="saveRule()">PUBLISH RULE</button>
     </div>
   </div>
 </div>
 
-<!-- Add Member Modal -->
 <div class="modal-overlay" id="modal-add-member">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">ADD MEMBER</div>
-      <button class="modal-close" onclick="closeModal('add-member')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">ADD MEMBER</div><button onclick="closeModal('add-member')">✕</button></div>
     <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="mem-name" placeholder="Enter name">
-        </div>
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="text" id="mem-phone" placeholder="+880...">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Join Date</label>
-        <input type="date" id="mem-date">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('add-member')">Cancel</button>
+      <div class="form-group"><label>Name</label><input type="text" id="mem-name"></div>
+      <div class="form-group"><label>Phone</label><input type="text" id="mem-phone"></div>
       <button class="btn btn-primary" onclick="saveMember()">SAVE MEMBER</button>
     </div>
   </div>
 </div>
 
-<!-- View Violation Modal -->
-<div class="modal-overlay" id="modal-view-violation">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">VIOLATION DETAIL</div>
-      <button class="modal-close" onclick="closeModal('view-violation')">✕</button>
-    </div>
-    <div class="modal-body" id="view-violation-body"></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('view-violation')">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDZbD3qG1dKzM9v7A2f7j9E2UZoCEmFKg0",
+    authDomain: "groupadmin-62e30.firebaseapp.com",
+    databaseURL: "https://groupadmin-62e30-default-rtdb.firebaseio.com",
+    projectId: "groupadmin-62e30"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  onValue(ref(db, 'adminData'), (snapshot) => {
+    const data = snapshot.val() || { violations: {}, rules: {}, members: {} };
+    const viols = Object.entries(data.violations || {}).map(([id, v]) => ({...v, id}));
+    const rules = Object.entries(data.rules || {}).map(([id, r]) => ({...r, id}));
+    const members = Object.entries(data.members || {}).map(([id, m]) => ({...m, id}));
+
+    renderAll(viols, rules, members);
+  });
+
+  function renderAll(viols, rules, members) {
+    // Stats
+    document.getElementById('stat-total').innerText = viols.length;
+    document.getElementById('stat-warned').innerText = viols.filter(v => v.status === 'Warned').length;
+    document.getElementById('stat-removed').innerText = viols.filter(v => v.status !== 'Warned').length;
+    document.getElementById('stat-rules').innerText = rules.length;
+    document.getElementById('viol-badge').innerText = viols.length;
+
+    // Dashboard & Violations Table
+    document.getElementById('recent-table').innerHTML = viols.slice(-5).reverse().map(v => `
+      <tr><td>${v.name}</td><td><span class="rule-tag">${v.rule}</span></td><td>Just Now</td><td><span class="badge badge-red">${v.status}</span></td></tr>
+    `).join('');
+
+    document.getElementById('violations-table').innerHTML = viols.map(v => `
+      <tr><td>${v.name}</td><td>${v.phone}</td><td>${v.rule}</td><td>${v.details}</td><td>${v.status}</td>
+      <td><button onclick="window.del('violations/${v.id}')">🗑</button></td></tr>
+    `).join('');
+
+    // Rules Grid
+    document.getElementById('rules-grid').innerHTML = rules.map((r, i) => `
+      <div class="rule-card"><div class="rule-num">${i+1}</div><div><strong>${r.title}</strong><p>${r.desc}</p></div>
+      <button style="position:absolute;right:10px;" onclick="window.del('rules/${r.id}')">🗑</button></div>
+    `).join('');
+
+    // Members Table
+    document.getElementById('members-table').innerHTML = members.map(m => {
+        const count = viols.filter(v => v.name === m.name).length;
+        return `<tr><td>${m.name}</td><td>${m.phone}</td><td>${count}</td><td>Active</td>
+        <td><button onclick="window.del('members/${m.id}')">🗑</button></td></tr>`;
+    }).join('');
+
+    // Dropdown
+    const sel = document.getElementById('viol-rule');
+    sel.innerHTML = rules.map(r => `<option value="${r.title}">${r.title}</option>`).join('') || '<option>General</option>';
+  }
+
+  window.saveViolation = () => {
+    push(ref(db, 'adminData/violations'), {
+      name: document.getElementById('viol-name').value,
+      phone: document.getElementById('viol-phone').value,
+      rule: document.getElementById('viol-rule').value,
+      status: document.getElementById('viol-status').value,
+      details: document.getElementById('viol-details').value
+    });
+    closeModal('add-violation');
+  };
+
+  window.saveRule = () => {
+    push(ref(db, 'adminData/rules'), {
+      title: document.getElementById('rule-title').value,
+      desc: document.getElementById('rule-desc').value
+    });
+    closeModal('add-rule');
+  };
+
+  window.saveMember = () => {
+    push(ref(db, 'adminData/members'), {
+      name: document.getElementById('mem-name').value,
+      phone: document.getElementById('mem-phone').value
+    });
+    closeModal('add-member');
+  };
+
+  window.del = (path) => { if(confirm("Delete?")) remove(ref(db, 'adminData/' + path)); };
+</script>
+
 <script>
-// ===================== IndexedDB =====================
-let db;
-const DB_NAME = 'GroupAdminDB';
-const DB_VER = 1;
-
-function initDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VER);
-    req.onupgradeneeded = e => {
-      const d = e.target.result;
-      if (!d.objectStoreNames.contains('violations')) {
-        const vs = d.createObjectStore('violations', { keyPath: 'id', autoIncrement: true });
-        vs.createIndex('name', 'name', { unique: false });
-        vs.createIndex('status', 'status', { unique: false });
-      }
-      if (!d.objectStoreNames.contains('rules')) {
-        d.createObjectStore('rules', { keyPath: 'id', autoIncrement: true });
-      }
-      if (!d.objectStoreNames.contains('members')) {
-        const ms = d.createObjectStore('members', { keyPath: 'id', autoIncrement: true });
-        ms.createIndex('phone', 'phone', { unique: false });
-      }
-    };
-    req.onsuccess = e => { db = e.target.result; resolve(db); };
-    req.onerror = () => reject(req.error);
-  });
-}
-
-function dbGetAll(store) {
-  return new Promise((res, rej) => {
-    const tx = db.transaction(store, 'readonly');
-    const req = tx.objectStore(store).getAll();
-    req.onsuccess = () => res(req.result);
-    req.onerror = () => rej(req.error);
-  });
-}
-
-function dbAdd(store, data) {
-  return new Promise((res, rej) => {
-    const tx = db.transaction(store, 'readwrite');
-    const req = tx.objectStore(store).add(data);
-    req.onsuccess = () => res(req.result);
-    req.onerror = () => rej(req.error);
-  });
-}
-
-function dbDelete(store, id) {
-  return new Promise((res, rej) => {
-    const tx = db.transaction(store, 'readwrite');
-    const req = tx.objectStore(store).delete(id);
-    req.onsuccess = () => res();
-    req.onerror = () => rej(req.error);
-  });
-}
-
-// ===================== UI State =====================
-let currentFilter = 'all';
-let currentSearch = '';
-let currentPage = 'dashboard';
-
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => {
-    if (n.textContent.toLowerCase().includes(name.toLowerCase().slice(0,4))) n.classList.add('active');
-  });
-
-  const titles = { dashboard: 'DASHBOARD', violations: 'VIOLATIONS', rules: 'RULES', members: 'MEMBERS' };
-  document.getElementById('topbar-title').textContent = titles[name] || name.toUpperCase();
-
-  const btn = document.getElementById('topbar-action-btn');
-  if (name === 'violations') { btn.textContent = '+ ADD VIOLATION'; btn.onclick = () => openModal('add-violation'); }
-  else if (name === 'rules') { btn.textContent = '+ ADD RULE'; btn.onclick = () => openModal('add-rule'); }
-  else if (name === 'members') { btn.textContent = '+ ADD MEMBER'; btn.onclick = () => openModal('add-member'); }
-  else { btn.textContent = '+ ADD VIOLATION'; btn.onclick = () => openModal('add-violation'); }
-
-  currentPage = name;
-  refreshAll();
-}
-
-// ===================== Modals =====================
-function openModal(name) {
-  if (name === 'add-violation') {
-    document.getElementById('viol-date').value = new Date().toISOString().split('T')[0];
-    populateRulesDropdown();
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.getElementById('topbar-title').innerText = id.toUpperCase();
+    
+    const btn = document.getElementById('topbar-action-btn');
+    if(id === 'rules') { btn.innerText = "+ ADD RULE"; btn.onclick = () => openModal('add-rule'); }
+    else if(id === 'members') { btn.innerText = "+ ADD MEMBER"; btn.onclick = () => openModal('add-member'); }
+    else { btn.innerText = "+ ADD VIOLATION"; btn.onclick = () => openModal('add-violation'); }
   }
-  if (name === 'add-member') {
-    document.getElementById('mem-date').value = new Date().toISOString().split('T')[0];
-  }
-  document.getElementById('modal-' + name).classList.add('open');
-}
-
-function closeModal(name) {
-  document.getElementById('modal-' + name).classList.remove('open');
-}
-
-// Close on overlay click
-document.querySelectorAll('.modal-overlay').forEach(o => {
-  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
-});
-
-// ===================== Violations =====================
-async function saveViolation() {
-  const name = document.getElementById('viol-name').value.trim();
-  const phone = document.getElementById('viol-phone').value.trim();
-  const rule = document.getElementById('viol-rule').value;
-  const status = document.getElementById('viol-status').value;
-  const details = document.getElementById('viol-details').value.trim();
-  const date = document.getElementById('viol-date').value;
-
-  if (!name || !rule || !date) { showToast('Fill all required fields', 'error'); return; }
-
-  await dbAdd('violations', { name, phone, rule, status, details, date });
-  closeModal('add-violation');
-  document.getElementById('viol-name').value = '';
-  document.getElementById('viol-phone').value = '';
-  document.getElementById('viol-details').value = '';
-  showToast('Violation recorded!', 'success');
-  refreshAll();
-}
-
-async function renderViolations(filter = 'all', search = '') {
-  const data = await dbGetAll('violations');
-  let filtered = data;
-  if (filter !== 'all') filtered = filtered.filter(v => v.status === filter);
-  if (search) filtered = filtered.filter(v =>
-    v.name.toLowerCase().includes(search) ||
-    v.rule.toLowerCase().includes(search) ||
-    (v.phone && v.phone.includes(search))
-  );
-
-  // Update badge
-  document.getElementById('viol-badge').textContent = data.length;
-
-  // Recent table (dashboard)
-  const recent = [...data].reverse().slice(0, 5);
-  const rt = document.getElementById('recent-table');
-  if (recent.length === 0) {
-    rt.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="empty-icon">📭</div>No violations yet</div></td></tr>';
-  } else {
-    rt.innerHTML = recent.map(v => `
-      <tr>
-        <td><div class="violator-name">${v.name}</div><div class="violator-phone">${v.phone || '—'}</div></td>
-        <td><span class="rule-tag">${v.rule}</span></td>
-        <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">${v.date}</td>
-        <td>${statusBadge(v.status)}</td>
-      </tr>
-    `).join('');
-  }
-
-  // Violations table
-  const vt = document.getElementById('violations-table');
-  if (filtered.length === 0) {
-    vt.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">✅</div>No violations found</div></td></tr>';
-  } else {
-    vt.innerHTML = filtered.reverse().map((v, i) => `
-      <tr>
-        <td style="font-family:var(--mono);color:var(--muted);font-size:11px">${i + 1}</td>
-        <td><div class="violator-name">${v.name}</div></td>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${v.phone || '—'}</td>
-        <td><span class="rule-tag">${v.rule}</span></td>
-        <td style="max-width:160px;font-size:12px;color:var(--muted)">${v.details ? v.details.slice(0,60) + (v.details.length > 60 ? '…' : '') : '—'}</td>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${v.date}</td>
-        <td>${statusBadge(v.status)}</td>
-        <td>
-          <div class="action-btns">
-            <button class="icon-btn" onclick="viewViolation(${v.id})" title="View">👁</button>
-            <button class="icon-btn danger" onclick="deleteViolation(${v.id})" title="Delete">🗑</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  // Stats
-  document.getElementById('stat-total').textContent = data.length;
-  document.getElementById('stat-warned').textContent = data.filter(v => v.status === 'Warned').length;
-  document.getElementById('stat-removed').textContent = data.filter(v => v.status === 'Removed' || v.status === 'Banned').length;
-}
-
-async function viewViolation(id) {
-  const data = await dbGetAll('violations');
-  const v = data.find(x => x.id === id);
-  if (!v) return;
-  document.getElementById('view-violation-body').innerHTML = `
-    <div style="display:grid;gap:14px">
-      <div><div class="stat-label">Member Name</div><div style="margin-top:4px;font-weight:600">${v.name}</div></div>
-      <div><div class="stat-label">Phone</div><div style="margin-top:4px;font-family:var(--mono);font-size:13px">${v.phone || 'Not provided'}</div></div>
-      <div><div class="stat-label">Rule Broken</div><div style="margin-top:4px"><span class="rule-tag">${v.rule}</span></div></div>
-      <div><div class="stat-label">Action Taken</div><div style="margin-top:4px">${statusBadge(v.status)}</div></div>
-      <div><div class="stat-label">Date</div><div style="margin-top:4px;font-family:var(--mono);font-size:13px">${v.date}</div></div>
-      <div><div class="stat-label">Details</div><div style="margin-top:4px;font-size:13px;color:var(--muted);line-height:1.6">${v.details || 'No details provided.'}</div></div>
-    </div>
-  `;
-  openModal('view-violation');
-}
-
-async function deleteViolation(id) {
-  if (!confirm('Delete this violation record?')) return;
-  await dbDelete('violations', id);
-  showToast('Violation deleted', 'success');
-  refreshAll();
-}
-
-function filterViolations(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderViolations(currentFilter, currentSearch);
-}
-
-function statusBadge(s) {
-  const map = { Warned: 'yellow', Removed: 'red', Banned: 'red' };
-  const icons = { Warned: '⚠️', Removed: '🚫', Banned: '⛔' };
-  return `<span class="badge badge-${map[s] || 'green'}">${icons[s] || ''} ${s}</span>`;
-}
-
-// ===================== Rules =====================
-async function saveRule() {
-  const title = document.getElementById('rule-title').value.trim();
-  const desc = document.getElementById('rule-desc').value.trim();
-  if (!title) { showToast('Rule title is required', 'error'); return; }
-  await dbAdd('rules', { title, desc });
-  document.getElementById('rule-title').value = '';
-  document.getElementById('rule-desc').value = '';
-  closeModal('add-rule');
-  showToast('Rule added!', 'success');
-  refreshAll();
-}
-
-async function renderRules() {
-  const data = await dbGetAll('rules');
-  const grid = document.getElementById('rules-grid');
-  document.getElementById('stat-rules').textContent = data.length;
-
-  if (data.length === 0) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📋</div>No rules added yet</div>';
-    return;
-  }
-
-  grid.innerHTML = data.map((r, i) => `
-    <div class="rule-card">
-      <div class="rule-num">${String(i + 1).padStart(2, '0')}</div>
-      <div class="rule-text">
-        <div class="rule-title">${r.title}</div>
-        <div class="rule-desc">${r.desc || 'No description.'}</div>
-      </div>
-      <div class="rule-actions">
-        <button class="icon-btn danger" onclick="deleteRule(${r.id})" title="Delete">🗑</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-async function deleteRule(id) {
-  if (!confirm('Delete this rule?')) return;
-  await dbDelete('rules', id);
-  showToast('Rule deleted', 'success');
-  refreshAll();
-}
-
-async function populateRulesDropdown() {
-  const rules = await dbGetAll('rules');
-  const sel = document.getElementById('viol-rule');
-  const current = sel.value;
-  sel.innerHTML = '<option value="">Select rule...</option>';
-  rules.forEach(r => {
-    const opt = document.createElement('option');
-    opt.value = r.title;
-    opt.textContent = r.title;
-    if (r.title === current) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  if (rules.length === 0) {
-    const opt = document.createElement('option');
-    opt.value = 'General Rule';
-    opt.textContent = 'General Rule';
-    sel.appendChild(opt);
-  }
-}
-
-// ===================== Members =====================
-async function saveMember() {
-  const name = document.getElementById('mem-name').value.trim();
-  const phone = document.getElementById('mem-phone').value.trim();
-  const date = document.getElementById('mem-date').value;
-  if (!name) { showToast('Name is required', 'error'); return; }
-  await dbAdd('members', { name, phone, date });
-  document.getElementById('mem-name').value = '';
-  document.getElementById('mem-phone').value = '';
-  closeModal('add-member');
-  showToast('Member added!', 'success');
-  refreshAll();
-}
-
-async function renderMembers(search = '') {
-  const members = await dbGetAll('members');
-  const violations = await dbGetAll('violations');
-  const tbody = document.getElementById('members-table');
-
-  let filtered = members;
-  if (search) filtered = filtered.filter(m =>
-    m.name.toLowerCase().includes(search) || (m.phone && m.phone.includes(search))
-  );
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">👥</div>No members found</div></td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = filtered.map(m => {
-    const vcount = violations.filter(v => v.name.toLowerCase() === m.name.toLowerCase()).length;
-    const lastViol = violations.filter(v => v.name.toLowerCase() === m.name.toLowerCase()).pop();
-    const status = lastViol ? lastViol.status : 'Active';
-    return `
-      <tr>
-        <td><div class="violator-name">${m.name}</div></td>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${m.phone || '—'}</td>
-        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${m.date || '—'}</td>
-        <td style="font-family:var(--mono);font-size:13px;color:${vcount > 0 ? 'var(--danger)' : 'var(--accent)'}">${vcount}</td>
-        <td>${vcount > 0 ? statusBadge(status) : '<span class="badge badge-green">✅ Active</span>'}</td>
-        <td>
-          <div class="action-btns">
-            <button class="icon-btn danger" onclick="deleteMember(${m.id})" title="Remove">🗑</button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-async function deleteMember(id) {
-  if (!confirm('Remove this member?')) return;
-  await dbDelete('members', id);
-  showToast('Member removed', 'success');
-  refreshAll();
-}
-
-// ===================== Search =====================
-function handleSearch(val) {
-  currentSearch = val.toLowerCase();
-  renderViolations(currentFilter, currentSearch);
-  renderMembers(currentSearch);
-}
-
-// ===================== Refresh All =====================
-async function refreshAll() {
-  await renderViolations(currentFilter, currentSearch);
-  await renderRules();
-  await renderMembers(currentSearch);
-}
-
-// ===================== Toast =====================
-function showToast(msg, type = 'success') {
-  const t = document.getElementById('toast');
-  t.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
-  t.className = 'toast ' + type;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// ===================== Init =====================
-initDB().then(() => {
-  refreshAll();
-  // Seed default rules if empty
-  dbGetAll('rules').then(rules => {
-    if (rules.length === 0) {
-      const defaults = [
-        { title: 'No Spam', desc: 'Do not send repetitive messages, advertisements, or irrelevant links.' },
-        { title: 'No Hate Speech', desc: 'Respect all members. No abusive, offensive, or discriminatory language.' },
-        { title: 'No Fake News', desc: 'Do not spread unverified information or misinformation.' },
-        { title: 'Stay On Topic', desc: 'Keep discussions relevant to the group purpose.' },
-      ];
-      Promise.all(defaults.map(r => dbAdd('rules', r))).then(() => refreshAll());
-    }
-  });
-}).catch(e => showToast('DB Error: ' + e.message, 'error'));
+  function openModal(id) { document.getElementById('modal-' + id).classList.add('open'); }
+  function closeModal(id) { document.getElementById('modal-' + id).classList.remove('open'); }
 </script>
 </body>
 </html>
