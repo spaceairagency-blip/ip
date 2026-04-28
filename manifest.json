@@ -1,0 +1,17 @@
+{
+  "name": "Cloud Chat Pro",
+  "short_name": "CloudChat",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366F1",
+  "description": "Secure Realtime Cloud Chat System",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/5968/5968756.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
