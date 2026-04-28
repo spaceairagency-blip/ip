@@ -127,11 +127,13 @@
   document.getElementById('pwa-manifest').setAttribute('href', URL.createObjectURL(manifestBlob));
 
   // Service Worker Blob
-  const swCode = `self.addEventListener('fetch', function(e) { /* Simple Offline Support */ });`;
-  const swBlob = new Blob([swCode], {type: 'text/javascript'});
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register(URL.createObjectURL(swBlob));
-  }
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('SW Registered'))
+      .catch(err => console.log('SW Failed', err));
+  });
+}
 
   // 2. FIREBASE LOGIC
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
