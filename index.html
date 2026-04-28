@@ -4,139 +4,133 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Cloud Chat Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Cloud Chat | Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f8f9fa; --sidebar-bg: #ffffff; --accent: #7c3aed; --accent-hover: #6d28d9;
-    --text-main: #1f2937; --text-muted: #6b7280; --border: #e5e7eb;
-    --msg-in: #ffffff; --msg-out: #7c3aed; --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --bg: #F3F4F6; --sidebar: #FFFFFF; --accent: #6366F1; --accent-light: #EEF2FF;
+    --text: #111827; --text-light: #6B7280; --border: #E5E7EB; --me-bg: #6366F1;
   }
-  
-  /* Reset & Base */
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-  body { background: var(--bg); color: var(--text-main); height: 100vh; overflow: hidden; }
+  body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-  .layout { display: flex; height: 100vh; }
+  .app-container { display: flex; height: 100vh; max-width: 1600px; margin: 0 auto; background: #fff; }
 
-  /* SIDEBAR (Uizard Style) */
+  /* SIDEBAR */
   .sidebar { 
-    width: 320px; background: var(--sidebar-bg); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 1000;
+    width: 320px; background: var(--sidebar); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; transition: 0.3s ease;
   }
+  .sidebar-header { padding: 30px 24px; }
+  .logo { font-size: 22px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
   
-  .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); }
-  .logo-text { font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-  
-  .user-list { flex: 1; overflow-y: auto; padding: 12px; }
-  .user-card { 
+  .user-list { flex: 1; overflow-y: auto; padding: 0 16px; }
+  .user-tile { 
     display: flex; align-items: center; gap: 12px; padding: 12px; 
     border-radius: 12px; cursor: pointer; transition: 0.2s; margin-bottom: 4px;
   }
-  .user-card:hover { background: #f3f4f6; }
+  .user-tile:hover { background: var(--accent-light); }
   .avatar { 
-    width: 44px; height: 44px; background: #ddd; border-radius: 14px; 
-    display: flex; align-items: center; justify-content: center; font-weight: 600; color: #555;
+    width: 48px; height: 48px; background: #E0E7FF; border-radius: 16px; 
+    display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--accent);
+    position: relative;
   }
-  .status-indicator { width: 10px; height: 10px; border-radius: 50%; background: #10b981; border: 2px solid #fff; }
+  .status-dot { 
+    position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px; 
+    background: #10B981; border: 2px solid #fff; border-radius: 50%; 
+  }
 
-  /* MAIN CHAT AREA */
-  .main-chat { flex: 1; display: flex; flex-direction: column; background: #f9fafb; position: relative; }
-  
+  /* CHAT MAIN */
+  .chat-view { flex: 1; display: flex; flex-direction: column; background: #F9FAFB; position: relative; }
   .chat-header { 
-    height: 72px; background: #fff; border-bottom: 1px solid var(--border); 
-    display: flex; align-items: center; padding: 0 24px; justify-content: space-between;
+    height: 80px; padding: 0 32px; display: flex; align-items: center; 
+    justify-content: space-between; border-bottom: 1px solid var(--border); background: #fff;
   }
 
-  .messages-container { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
-
-  /* MESSAGE BUBBLES */
-  .msg-wrapper { max-width: 70%; display: flex; flex-direction: column; gap: 4px; position: relative; }
-  .msg-wrapper.me { align-self: flex-end; }
-  .msg-wrapper.them { align-self: flex-start; }
+  .messages { flex: 1; padding: 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+  
+  /* BUBBLES */
+  .msg-row { display: flex; flex-direction: column; max-width: 75%; position: relative; }
+  .msg-row.me { align-self: flex-end; align-items: flex-end; }
+  .msg-row.them { align-self: flex-start; }
 
   .bubble { 
-    padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; 
-    box-shadow: var(--shadow); position: relative;
+    padding: 14px 18px; border-radius: 18px; font-size: 15px; line-height: 1.5; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; transition: 0.2s;
   }
-  .them .bubble { background: var(--msg-in); color: var(--text-main); border-bottom-left-radius: 4px; }
-  .me .bubble { background: var(--msg-out); color: white; border-bottom-right-radius: 4px; }
+  .them .bubble { background: #fff; color: var(--text); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+  .me .bubble { background: var(--me-bg); color: #fff; border-bottom-right-radius: 4px; }
 
-  /* REACTIONS & ACTIONS */
-  .msg-actions { 
-    position: absolute; top: -15px; right: 0; display: none; 
-    background: white; border: 1px solid var(--border); border-radius: 20px; 
-    padding: 4px 8px; box-shadow: var(--shadow); z-index: 5;
+  /* ACTIONS & TYPING */
+  .actions { 
+    position: absolute; top: -20px; display: none; background: #fff; 
+    border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
-  .msg-wrapper:hover .msg-actions { display: flex; gap: 8px; }
-  .action-icon { cursor: pointer; opacity: 0.6; font-size: 14px; transition: 0.2s; }
-  .action-icon:hover { opacity: 1; transform: scale(1.2); }
+  .msg-row:hover .actions { display: flex; }
+  .act-btn { cursor: pointer; font-size: 14px; opacity: 0.6; }
+  .act-btn:hover { opacity: 1; transform: scale(1.2); }
 
-  .reaction-pill { 
-    margin-top: -10px; background: white; border: 1px solid var(--border); 
-    padding: 2px 8px; border-radius: 10px; font-size: 12px; width: fit-content; align-self: flex-start;
+  .typing-indicator { 
+    padding: 0 32px 10px; height: 24px; font-size: 12px; color: var(--accent); 
+    font-weight: 500; display: flex; align-items: center; gap: 4px;
   }
-  .me .reaction-pill { align-self: flex-end; }
+  .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; animation: blink 1.4s infinite; }
+  @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
 
-  /* INPUT AREA */
-  .input-area { padding: 20px 24px; background: #fff; border-top: 1px solid var(--border); }
-  .input-box-wrapper { 
-    display: flex; align-items: center; gap: 12px; background: #f3f4f6; 
-    padding: 8px 16px; border-radius: 16px; border: 1px solid transparent; transition: 0.2s;
+  /* INPUT */
+  .input-container { padding: 24px 32px 32px; background: #F9FAFB; }
+  .input-bar { 
+    display: flex; align-items: center; gap: 15px; background: #fff; 
+    padding: 10px 18px; border-radius: 20px; border: 1px solid var(--border);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
   }
-  .input-box-wrapper:focus-within { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1); }
-  
-  input { flex: 1; border: none; background: transparent; outline: none; padding: 10px 0; font-size: 15px; }
-  .send-btn { 
-    background: var(--accent); color: white; border: none; padding: 10px 20px; 
-    border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;
+  input { flex: 1; border: none; outline: none; padding: 12px 0; font-size: 15px; background: transparent; }
+  .btn-send { 
+    background: var(--accent); color: white; border: none; padding: 12px 24px; 
+    border-radius: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;
   }
-  .send-btn:hover { background: var(--accent-hover); }
+  .btn-send:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
 
   /* AUTH */
-  #auth-overlay { position: fixed; inset: 0; background: #fff; z-index: 2000; display: flex; align-items: center; justify-content: center; }
-  .auth-card { width: 100%; max-width: 400px; padding: 40px; text-align: center; }
+  #auth { position: fixed; inset: 0; background: #fff; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+  .auth-box { width: 100%; max-width: 400px; padding: 40px; text-align: center; }
   
-  /* MOBILE HANDLER */
-  @media (max-width: 768px) {
-    .sidebar { position: absolute; left: -100%; transform: translateX(0); }
-    .sidebar.open { left: 0; transform: translateX(0); width: 85%; }
-  }
+  @media (max-width: 768px) { .sidebar { display: none; } }
 </style>
 </head>
 <body>
 
-<div id="auth-overlay">
-  <div class="auth-card">
-    <h1 style="margin-bottom: 8px;">Welcome back</h1>
-    <p style="color: var(--text-muted); margin-bottom: 32px;">Join the secure conversation.</p>
-    <input type="text" id="username-input" placeholder="Your name" style="width: 100%; background: #f3f4f6; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border);">
-    <button class="send-btn" style="width: 100%; padding: 16px;" onclick="joinChat()">Get Started</button>
+<div id="auth">
+  <div class="auth-box">
+    <h1 style="font-size: 32px; margin-bottom: 10px;">Cloud Chat</h1>
+    <p style="color: var(--text-light); margin-bottom: 30px;">Enter your alias to begin</p>
+    <input type="text" id="user-in" placeholder="Username..." style="width: 100%; border: 1px solid var(--border); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+    <button class="btn-send" style="width: 100%;" onclick="start()">Join System</button>
   </div>
 </div>
 
-<div class="layout">
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="logo-text">CloudChat</div>
-    </div>
-    <div class="user-list" id="active-users"></div>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-header"><div class="logo">CloudChat 2.0</div></div>
+    <div class="user-list" id="user-box"></div>
   </aside>
 
-  <main class="main-chat">
+  <main class="chat-view">
     <header class="chat-header">
-      <div style="font-weight: 600;"># Public Channel</div>
-      <div id="typing-status" style="font-size: 12px; color: var(--accent);"></div>
+      <div style="font-weight: 700; font-size: 18px;"># General Channel</div>
+      <div style="font-size: 12px; color: var(--text-light);" id="my-name">Not Connected</div>
     </header>
     
-    <div class="messages-container" id="msg-box"></div>
+    <div class="messages" id="chat-box"></div>
 
-    <div class="input-area">
-      <div id="reply-node" style="display:none; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; padding-left: 12px; border-left: 2px solid var(--accent);"></div>
-      <div class="input-box-wrapper">
-        <span style="cursor:pointer" onclick="toggleEmoji()">😊</span>
-        <input type="text" id="chat-input" placeholder="Type a message...">
-        <button class="send-btn" onclick="sendMessage()">Send</button>
+    <div class="typing-indicator" id="typing-box"></div>
+
+    <div class="input-container">
+      <div id="reply-preview" style="display:none; font-size: 12px; background: #eee; padding: 8px; border-radius: 8px 8px 0 0; border: 1px solid var(--border); border-bottom: none;"></div>
+      <div class="input-bar">
+        <span style="font-size: 20px; cursor: pointer;">😊</span>
+        <input type="text" id="msg-in" placeholder="Write a message...">
+        <button class="btn-send" onclick="send()">Send</button>
       </div>
     </div>
   </main>
@@ -155,100 +149,105 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  let currentUser = null;
-  let activeReply = null;
+  let user = null;
+  let replyTo = null;
 
-  window.joinChat = () => {
-    const name = document.getElementById('username-input').value.trim();
-    if(!name) return;
-    currentUser = name;
-    document.getElementById('auth-overlay').style.display = 'none';
+  window.start = () => {
+    const val = document.getElementById('user-in').value.trim();
+    if(!val) return;
+    user = val;
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('my-name').innerText = `@${user.toLowerCase()}`;
     
-    const userRef = ref(db, `chatSystem/users/${name}`);
-    set(userRef, { status: 'online', isTyping: false });
-    onDisconnect(userRef).remove();
-    initSync();
+    const uRef = ref(db, `chatSystem/users/${user}`);
+    set(uRef, { typing: false, online: true });
+    onDisconnect(uRef).remove();
+    sync();
   };
 
-  window.sendMessage = () => {
-    const input = document.getElementById('chat-input');
+  window.send = () => {
+    const input = document.getElementById('msg-in');
     if(!input.value.trim()) return;
 
     push(ref(db, 'chatSystem/messages'), {
-      user: currentUser,
+      user: user,
       text: input.value,
       time: Date.now(),
-      replyTo: activeReply
+      reply: replyTo
     });
     
     input.value = '';
-    activeReply = null;
-    document.getElementById('reply-node').style.display = 'none';
+    replyTo = null;
+    document.getElementById('reply-preview').style.display = 'none';
   };
 
-  window.setReply = (user, text) => {
-    activeReply = { user, text };
-    const node = document.getElementById('reply-node');
-    node.innerText = `Replying to ${user}...`;
-    node.style.display = 'block';
+  window.handleReply = (u, t) => {
+    replyTo = { u, t };
+    const pre = document.getElementById('reply-preview');
+    pre.style.display = 'block';
+    pre.innerText = `Replying to ${u}: ${t.substring(0,25)}...`;
   };
 
   window.react = (id, emoji) => {
-    set(ref(db, `chatSystem/messages/${id}/reactions/${currentUser}`), emoji);
+    set(ref(db, `chatSystem/messages/${id}/reactions/${user}`), emoji);
   };
 
-  function initSync() {
-    const input = document.getElementById('chat-input');
+  function sync() {
+    const input = document.getElementById('msg-in');
     input.oninput = () => {
-      set(ref(db, `chatSystem/users/${currentUser}/isTyping`), true);
-      clearTimeout(window.t);
-      window.t = setTimeout(() => set(ref(db, `chatSystem/users/${currentUser}/isTyping`), false), 1500);
+      set(ref(db, `chatSystem/users/${user}/typing`), true);
+      clearTimeout(window.typeTimer);
+      window.typeTimer = setTimeout(() => set(ref(db, `chatSystem/users/${user}/typing`), false), 1500);
     };
 
     onValue(ref(db, 'chatSystem/messages'), (snap) => {
-      const box = document.getElementById('msg-box');
+      const box = document.getElementById('chat-box');
       box.innerHTML = '';
       const data = snap.val() || {};
       
       Object.entries(data).forEach(([id, m]) => {
-        const isMe = m.user === currentUser;
+        const isMe = m.user === user;
         const reactions = m.reactions ? Object.values(m.reactions) : [];
-        
-        const wrap = document.createElement('div');
-        wrap.className = `msg-wrapper ${isMe ? 'me' : 'them'}`;
-        wrap.innerHTML = `
-          <div class="msg-actions">
-            <span class="action-icon" onclick="setReply('${m.user}', '${m.text}')">↩️</span>
-            <span class="action-icon" onclick="react('${id}', '❤️')">❤️</span>
+        const row = document.createElement('div');
+        row.className = `msg-row ${isMe ? 'me' : 'them'}`;
+        row.innerHTML = `
+          <div class="actions">
+            <span class="act-btn" onclick="handleReply('${m.user}', '${m.text}')">↩️</span>
+            <span class="act-btn" onclick="react('${id}', '❤️')">❤️</span>
           </div>
-          ${m.replyTo ? `<div style="font-size:11px; color:var(--text-muted); margin-bottom: -10px; margin-left: 10px;">@${m.replyTo.user}</div>` : ''}
-          <div class="bubble">
-            <div style="font-weight:600; font-size:11px; margin-bottom:2px; opacity:0.8">${isMe ? 'You' : m.user}</div>
-            ${m.text}
+          <div style="font-size:11px; color:var(--text-light); margin-bottom:4px; padding:0 5px;">${m.user}</div>
+          ${m.reply ? `<div style="font-size:10px; color:var(--text-light); margin-bottom:-8px; margin-left:10px; opacity:0.7">⮑ ${m.reply.u}</div>` : ''}
+          <div class="bubble">${m.text}</div>
+          <div style="display:flex; gap:4px; margin-top:2px;">
+            ${[...new Set(reactions)].map(r => `<span style="font-size:12px; background:#fff; border:1px solid #eee; padding:1px 6px; border-radius:10px;">${r}</span>`).join('')}
           </div>
-          ${reactions.length ? `<div class="reaction-pill">${reactions[0]} ${reactions.length}</div>` : ''}
         `;
-        box.appendChild(wrap);
+        box.appendChild(row);
       });
       box.scrollTop = box.scrollHeight;
     });
 
     onValue(ref(db, 'chatSystem/users'), (snap) => {
-      const list = document.getElementById('active-users');
-      list.innerHTML = '';
+      const uBox = document.getElementById('user-box');
+      const tBox = document.getElementById('typing-box');
+      uBox.innerHTML = '';
       const users = snap.val() || {};
-      Object.keys(users).forEach(u => {
-        list.innerHTML += `
-          <div class="user-card">
-            <div class="avatar">${u[0].toUpperCase()}</div>
-            <div style="flex:1">
-              <div style="font-weight:500; font-size:14px;">${u}</div>
-              <div style="font-size:12px; color: var(--text-muted);">Active now</div>
+      let typers = [];
+
+      Object.entries(users).forEach(([name, d]) => {
+        uBox.innerHTML += `
+          <div class="user-tile">
+            <div class="avatar">${name[0].toUpperCase()}<div class="status-dot"></div></div>
+            <div>
+              <div style="font-weight:600; font-size:14px;">${name}</div>
+              <div style="font-size:12px; color: var(--text-light);">${d.typing ? 'Typing...' : 'Online'}</div>
             </div>
-            <div class="status-indicator"></div>
           </div>
         `;
+        if(d.typing && name !== user) typers.push(name);
       });
+      
+      tBox.innerHTML = typers.length ? `<div class="dot"></div><div class="dot" style="animation-delay:0.2s"></div> ${typers[0]} is typing...` : '';
     });
   }
 </script>
