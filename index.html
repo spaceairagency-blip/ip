@@ -1,108 +1,142 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Cloud Chat v2</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<title>Cloud Chat Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0a; --surface: #111111; --surface2: #1a1a1a; --border: #222222;
-    --accent: #25D366; --accent2: #128C7E; --text: #e8e8e8; --muted: #666;
-    --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif; --display: 'Bebas Neue', cursive;
+    --bg: #f8f9fa; --sidebar-bg: #ffffff; --accent: #7c3aed; --accent-hover: #6d28d9;
+    --text-main: #1f2937; --text-muted: #6b7280; --border: #e5e7eb;
+    --msg-in: #ffffff; --msg-out: #7c3aed; --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); height: 100vh; overflow: hidden; position: fixed; width: 100%; }
   
+  /* Reset & Base */
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+  body { background: var(--bg); color: var(--text-main); height: 100vh; overflow: hidden; }
+
   .layout { display: flex; height: 100vh; }
-  
-  /* SIDEBAR & MOBILE LOGIC */
+
+  /* SIDEBAR (Uizard Style) */
   .sidebar { 
-    width: 280px; background: var(--surface); border-right: 1px solid var(--border); 
-    display: flex; flex-direction: column; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
+    width: 320px; background: var(--sidebar-bg); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 1000;
   }
   
-  @media (max-width: 768px) {
-    .sidebar { position: absolute; left: 0; height: 100%; transform: translateX(-100%); width: 80%; }
-    .sidebar.open { transform: translateX(0); box-shadow: 20px 0 50px rgba(0,0,0,0.8); }
-    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; }
-    .overlay.active { display: block; }
+  .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); }
+  .logo-text { font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+  
+  .user-list { flex: 1; overflow-y: auto; padding: 12px; }
+  .user-card { 
+    display: flex; align-items: center; gap: 12px; padding: 12px; 
+    border-radius: 12px; cursor: pointer; transition: 0.2s; margin-bottom: 4px;
+  }
+  .user-card:hover { background: #f3f4f6; }
+  .avatar { 
+    width: 44px; height: 44px; background: #ddd; border-radius: 14px; 
+    display: flex; align-items: center; justify-content: center; font-weight: 600; color: #555;
+  }
+  .status-indicator { width: 10px; height: 10px; border-radius: 50%; background: #10b981; border: 2px solid #fff; }
+
+  /* MAIN CHAT AREA */
+  .main-chat { flex: 1; display: flex; flex-direction: column; background: #f9fafb; position: relative; }
+  
+  .chat-header { 
+    height: 72px; background: #fff; border-bottom: 1px solid var(--border); 
+    display: flex; align-items: center; padding: 0 24px; justify-content: space-between;
   }
 
-  .logo { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .logo-top { font-family: var(--display); font-size: 24px; color: var(--accent); letter-spacing: 2px; }
-  .user-list { flex: 1; overflow-y: auto; padding: 10px; }
-  .user-item { padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
-  .user-avatar { width: 32px; height: 32px; background: var(--surface2); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--display); color: var(--accent); }
-  .status-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 5px var(--accent); }
+  .messages-container { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
 
-  /* MAIN CHAT */
-  .main-chat { flex: 1; display: flex; flex-direction: column; background: #0c0c0c; width: 100%; }
-  .chat-header { height: 60px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 15px; gap: 15px; }
-  .menu-btn { display: none; background: none; border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 6px; cursor: pointer; }
-  @media (max-width: 768px) { .menu-btn { display: block; } }
+  /* MESSAGE BUBBLES */
+  .msg-wrapper { max-width: 70%; display: flex; flex-direction: column; gap: 4px; position: relative; }
+  .msg-wrapper.me { align-self: flex-end; }
+  .msg-wrapper.them { align-self: flex-start; }
 
-  .messages-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-  .msg { max-width: 85%; padding: 10px 14px; border-radius: 15px; font-size: 14px; position: relative; animation: slideIn 0.2s ease-out; }
-  @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .bubble { 
+    padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; 
+    box-shadow: var(--shadow); position: relative;
+  }
+  .them .bubble { background: var(--msg-in); color: var(--text-main); border-bottom-left-radius: 4px; }
+  .me .bubble { background: var(--msg-out); color: white; border-bottom-right-radius: 4px; }
+
+  /* REACTIONS & ACTIONS */
+  .msg-actions { 
+    position: absolute; top: -15px; right: 0; display: none; 
+    background: white; border: 1px solid var(--border); border-radius: 20px; 
+    padding: 4px 8px; box-shadow: var(--shadow); z-index: 5;
+  }
+  .msg-wrapper:hover .msg-actions { display: flex; gap: 8px; }
+  .action-icon { cursor: pointer; opacity: 0.6; font-size: 14px; transition: 0.2s; }
+  .action-icon:hover { opacity: 1; transform: scale(1.2); }
+
+  .reaction-pill { 
+    margin-top: -10px; background: white; border: 1px solid var(--border); 
+    padding: 2px 8px; border-radius: 10px; font-size: 12px; width: fit-content; align-self: flex-start;
+  }
+  .me .reaction-pill { align-self: flex-end; }
+
+  /* INPUT AREA */
+  .input-area { padding: 20px 24px; background: #fff; border-top: 1px solid var(--border); }
+  .input-box-wrapper { 
+    display: flex; align-items: center; gap: 12px; background: #f3f4f6; 
+    padding: 8px 16px; border-radius: 16px; border: 1px solid transparent; transition: 0.2s;
+  }
+  .input-box-wrapper:focus-within { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1); }
   
-  .msg-incoming { align-self: flex-start; background: var(--surface2); border-bottom-left-radius: 2px; }
-  .msg-outgoing { align-self: flex-end; background: var(--accent2); border-bottom-right-radius: 2px; }
-  .msg-info { font-family: var(--mono); font-size: 9px; opacity: 0.6; margin-bottom: 3px; display: block; }
-
-  /* TYPING INDICATOR */
-  #typing-area { height: 20px; padding: 0 20px; font-size: 11px; color: var(--accent); font-family: var(--mono); font-style: italic; }
-
-  /* INPUT */
-  .input-area { padding: 15px; background: var(--surface); border-top: 1px solid var(--border); }
-  .input-wrapper { display: flex; gap: 10px; }
-  input { flex: 1; background: var(--surface2); border: 1px solid var(--border); padding: 12px 15px; color: #fff; border-radius: 10px; outline: none; font-size: 16px; }
-  .send-btn { background: var(--accent); color: #000; border: none; padding: 0 20px; border-radius: 10px; font-family: var(--display); font-size: 18px; cursor: pointer; }
+  input { flex: 1; border: none; background: transparent; outline: none; padding: 10px 0; font-size: 15px; }
+  .send-btn { 
+    background: var(--accent); color: white; border: none; padding: 10px 20px; 
+    border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;
+  }
+  .send-btn:hover { background: var(--accent-hover); }
 
   /* AUTH */
-  #auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .auth-card { background: var(--surface); padding: 30px; border-radius: 15px; border: 1px solid var(--border); width: 100%; max-width: 350px; text-align: center; }
+  #auth-overlay { position: fixed; inset: 0; background: #fff; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+  .auth-card { width: 100%; max-width: 400px; padding: 40px; text-align: center; }
+  
+  /* MOBILE HANDLER */
+  @media (max-width: 768px) {
+    .sidebar { position: absolute; left: -100%; transform: translateX(0); }
+    .sidebar.open { left: 0; transform: translateX(0); width: 85%; }
+  }
 </style>
 </head>
 <body>
 
 <div id="auth-overlay">
   <div class="auth-card">
-    <h1 style="font-family: var(--display); color: var(--accent); font-size: 40px; margin-bottom: 20px;">SYNC CHAT</h1>
-    <input type="text" id="username-input" placeholder="Enter Username..." style="width:100%; margin-bottom:15px;">
-    <button class="send-btn" style="width: 100%; height: 50px;" onclick="joinChat()">ACCESS SYSTEM</button>
+    <h1 style="margin-bottom: 8px;">Welcome back</h1>
+    <p style="color: var(--text-muted); margin-bottom: 32px;">Join the secure conversation.</p>
+    <input type="text" id="username-input" placeholder="Your name" style="width: 100%; background: #f3f4f6; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border);">
+    <button class="send-btn" style="width: 100%; padding: 16px;" onclick="joinChat()">Get Started</button>
   </div>
 </div>
 
-<div class="overlay" id="mobile-overlay" onclick="toggleMenu()"></div>
-
 <div class="layout">
   <aside class="sidebar" id="sidebar">
-    <div class="logo">
-      <div class="logo-top">TERMINAL</div>
-      <button class="menu-btn" onclick="toggleMenu()">✕</button>
+    <div class="sidebar-header">
+      <div class="logo-text">CloudChat</div>
     </div>
     <div class="user-list" id="active-users"></div>
-    <div style="padding: 15px; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 10px;">
-      STATUS: <span style="color: var(--accent)">ENCRYPTED</span>
-    </div>
   </aside>
 
   <main class="main-chat">
     <header class="chat-header">
-      <button class="menu-btn" onclick="toggleMenu()">☰</button>
-      <h2 style="font-family: var(--display); letter-spacing: 1px;">Global Encrypted Channel</h2>
+      <div style="font-weight: 600;"># Public Channel</div>
+      <div id="typing-status" style="font-size: 12px; color: var(--accent);"></div>
     </header>
     
     <div class="messages-container" id="msg-box"></div>
-    
-    <div id="typing-area"></div>
 
     <div class="input-area">
-      <div class="input-wrapper">
-        <input type="text" id="chat-input" placeholder="Write a message..." autocomplete="off">
-        <button class="send-btn" onclick="sendMessage()">SEND</button>
+      <div id="reply-node" style="display:none; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; padding-left: 12px; border-left: 2px solid var(--accent);"></div>
+      <div class="input-box-wrapper">
+        <span style="cursor:pointer" onclick="toggleEmoji()">😊</span>
+        <input type="text" id="chat-input" placeholder="Type a message...">
+        <button class="send-btn" onclick="sendMessage()">Send</button>
       </div>
     </div>
   </main>
@@ -110,7 +144,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, push, onValue, serverTimestamp, set, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, push, onValue, set, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDZbD3qG1dKzM9v7A2f7j9E2UZoCEmFKg0",
@@ -122,99 +156,101 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   let currentUser = null;
-  let typingTimeout;
-
-  // GLOBAL ACTIONS
-  window.toggleMenu = () => {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('mobile-overlay').classList.toggle('active');
-  };
+  let activeReply = null;
 
   window.joinChat = () => {
     const name = document.getElementById('username-input').value.trim();
     if(!name) return;
-    
     currentUser = name;
     document.getElementById('auth-overlay').style.display = 'none';
-
-    // Set Online Status
+    
     const userRef = ref(db, `chatSystem/users/${name}`);
     set(userRef, { status: 'online', isTyping: false });
     onDisconnect(userRef).remove();
-
-    initApp();
+    initSync();
   };
 
-  function initApp() {
+  window.sendMessage = () => {
     const input = document.getElementById('chat-input');
-    
-    // Typing Listener
-    input.addEventListener('input', () => {
-      set(ref(db, `chatSystem/users/${currentUser}/isTyping`), true);
-      clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(() => {
-        set(ref(db, `chatSystem/users/${currentUser}/isTyping`), false);
-      }, 2000);
+    if(!input.value.trim()) return;
+
+    push(ref(db, 'chatSystem/messages'), {
+      user: currentUser,
+      text: input.value,
+      time: Date.now(),
+      replyTo: activeReply
     });
+    
+    input.value = '';
+    activeReply = null;
+    document.getElementById('reply-node').style.display = 'none';
+  };
 
-    // Enter Key
-    input.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+  window.setReply = (user, text) => {
+    activeReply = { user, text };
+    const node = document.getElementById('reply-node');
+    node.innerText = `Replying to ${user}...`;
+    node.style.display = 'block';
+  };
 
-    // Sync Messages
+  window.react = (id, emoji) => {
+    set(ref(db, `chatSystem/messages/${id}/reactions/${currentUser}`), emoji);
+  };
+
+  function initSync() {
+    const input = document.getElementById('chat-input');
+    input.oninput = () => {
+      set(ref(db, `chatSystem/users/${currentUser}/isTyping`), true);
+      clearTimeout(window.t);
+      window.t = setTimeout(() => set(ref(db, `chatSystem/users/${currentUser}/isTyping`), false), 1500);
+    };
+
     onValue(ref(db, 'chatSystem/messages'), (snap) => {
       const box = document.getElementById('msg-box');
       box.innerHTML = '';
       const data = snap.val() || {};
-      Object.values(data).forEach(m => {
+      
+      Object.entries(data).forEach(([id, m]) => {
         const isMe = m.user === currentUser;
-        const div = document.createElement('div');
-        div.className = `msg ${isMe ? 'msg-outgoing' : 'msg-incoming'}`;
-        div.innerHTML = `
-          <span class="msg-info">${m.user} • ${new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-          ${m.text}
+        const reactions = m.reactions ? Object.values(m.reactions) : [];
+        
+        const wrap = document.createElement('div');
+        wrap.className = `msg-wrapper ${isMe ? 'me' : 'them'}`;
+        wrap.innerHTML = `
+          <div class="msg-actions">
+            <span class="action-icon" onclick="setReply('${m.user}', '${m.text}')">↩️</span>
+            <span class="action-icon" onclick="react('${id}', '❤️')">❤️</span>
+          </div>
+          ${m.replyTo ? `<div style="font-size:11px; color:var(--text-muted); margin-bottom: -10px; margin-left: 10px;">@${m.replyTo.user}</div>` : ''}
+          <div class="bubble">
+            <div style="font-weight:600; font-size:11px; margin-bottom:2px; opacity:0.8">${isMe ? 'You' : m.user}</div>
+            ${m.text}
+          </div>
+          ${reactions.length ? `<div class="reaction-pill">${reactions[0]} ${reactions.length}</div>` : ''}
         `;
-        box.appendChild(div);
+        box.appendChild(wrap);
       });
       box.scrollTop = box.scrollHeight;
     });
 
-    // Sync Users & Typing Status
     onValue(ref(db, 'chatSystem/users'), (snap) => {
       const list = document.getElementById('active-users');
-      const typingDisp = document.getElementById('typing-area');
       list.innerHTML = '';
-      let typers = [];
-      
       const users = snap.val() || {};
-      Object.entries(users).forEach(([name, data]) => {
+      Object.keys(users).forEach(u => {
         list.innerHTML += `
-          <div class="user-item">
-            <div class="user-avatar">${name[0].toUpperCase()}</div>
-            <div style="flex:1; font-size:13px; font-weight:600;">${name}</div>
-            ${data.isTyping ? '<div class="status-dot"></div>' : ''}
+          <div class="user-card">
+            <div class="avatar">${u[0].toUpperCase()}</div>
+            <div style="flex:1">
+              <div style="font-weight:500; font-size:14px;">${u}</div>
+              <div style="font-size:12px; color: var(--text-muted);">Active now</div>
+            </div>
+            <div class="status-indicator"></div>
           </div>
         `;
-        if(data.isTyping && name !== currentUser) typers.push(name);
       });
-
-      typingDisp.innerText = typers.length > 0 ? `${typers.join(', ')} is typing...` : '';
     });
   }
-
-  window.sendMessage = () => {
-    const input = document.getElementById('chat-input');
-    const text = input.value.trim();
-    if(!text) return;
-
-    push(ref(db, 'chatSystem/messages'), {
-      user: currentUser,
-      text: text,
-      time: Date.now()
-    });
-    
-    set(ref(db, `chatSystem/users/${currentUser}/isTyping`), false);
-    input.value = '';
-  };
 </script>
 </body>
 </html>
