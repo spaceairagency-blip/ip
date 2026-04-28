@@ -3,11 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#6366F1">
-<title>Cloud Chat Pro</title>
+<title>Cloud Chat | Admin Secure</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="manifest" id="pwa-manifest">
-
 <style>
   :root {
     --bg: #F3F4F6; --sidebar: #FFFFFF; --accent: #6366F1; --accent-light: #EEF2FF;
@@ -15,12 +12,12 @@
     --danger: #ef4444;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-  body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; -webkit-overflow-scrolling: touch; }
+  body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
   .app-container { display: flex; height: 100vh; max-width: 1600px; margin: 0 auto; background: #fff; }
 
   /* SIDEBAR */
-  .sidebar { width: 300px; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; }
+  .sidebar { width: 300px; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
   .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   .logo { font-size: 20px; font-weight: 700; color: var(--accent); }
   
@@ -33,12 +30,12 @@
   .status-dot { position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: #10B981; border: 2px solid #fff; border-radius: 50%; }
 
   /* CHAT MAIN */
-  .chat-view { flex: 1; display: flex; flex-direction: column; background: #F9FAFB; width: 100%; position: relative; }
+  .chat-view { flex: 1; display: flex; flex-direction: column; background: #F9FAFB; }
   .chat-header { height: 70px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: #fff; }
 
   .messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
   
-  .msg-row { display: flex; flex-direction: column; max-width: 85%; position: relative; margin-bottom: 5px; }
+  .msg-row { display: flex; flex-direction: column; max-width: 80%; position: relative; margin-bottom: 5px; }
   .msg-row.me { align-self: flex-end; align-items: flex-end; }
   .msg-row.them { align-self: flex-start; }
 
@@ -46,57 +43,54 @@
   .them .bubble { background: #fff; border: 1px solid var(--border); border-bottom-left-radius: 4px; }
   .me .bubble { background: var(--me-bg); color: #fff; border-bottom-right-radius: 4px; }
 
-  /* MOBILE TOGGLE */
-  .menu-toggle { display: none; background: none; border: none; font-size: 24px; cursor: pointer; }
-  @media (max-width: 768px) {
-    .menu-toggle { display: block; }
-    .sidebar { position: absolute; left: -100%; height: 100%; transform: translateX(0); }
-    .sidebar.open { left: 0; transform: translateX(0); width: 80%; }
-    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }
-    .overlay.active { display: block; }
+  /* FLOATING ACTIONS */
+  .actions { 
+    position: absolute; top: -18px; display: none; background: #fff; border: 1px solid var(--border); 
+    border-radius: 20px; padding: 4px 10px; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10;
   }
-
-  /* ACTIONS & TYPING */
-  .actions { position: absolute; top: -18px; display: none; background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; }
   .msg-row:hover .actions { display: flex; }
-  .act-btn { cursor: pointer; font-size: 13px; }
+  .act-btn { cursor: pointer; font-size: 13px; transition: transform 0.2s; }
+  .act-btn:hover { transform: scale(1.2); }
 
+  /* INPUT */
   .typing-area { padding: 0 24px 5px; height: 20px; font-size: 12px; color: var(--accent); font-weight: 500; }
   .input-container { padding: 10px 24px 24px; }
   .input-bar { display: flex; align-items: center; gap: 12px; background: #fff; padding: 8px 16px; border-radius: 16px; border: 1px solid var(--border); }
-  input { flex: 1; border: none; outline: none; padding: 10px 0; font-size: 16px; } /* 16px prevents iOS zoom */
+  input { flex: 1; border: none; outline: none; padding: 10px 0; font-size: 15px; }
   .btn-send { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; }
 
+  /* AUTH */
   #auth { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-  #admin-panel { display: none; padding: 15px; border-top: 1px solid var(--border); }
+  .auth-box { width: 320px; text-align: center; }
+
+  #admin-panel { display: none; padding: 15px; border-top: 1px solid var(--border); background: #fff5f5; }
 </style>
 </head>
 <body>
 
 <div id="auth">
-  <div style="width: 300px; text-align: center;">
+  <div class="auth-box">
     <h1 style="margin-bottom: 20px; color: var(--accent);">Cloud Chat</h1>
     <input type="text" id="user-in" placeholder="Enter name..." style="width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 15px;">
     <button class="btn-send" style="width: 100%;" onclick="start()">Login</button>
   </div>
 </div>
 
-<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
 <div class="app-container">
-  <aside class="sidebar" id="sidebar">
+  <aside class="sidebar">
     <div class="sidebar-header"><div class="logo">CloudChat</div></div>
     <div class="user-list" id="user-box"></div>
     <div id="admin-panel">
-      <button onclick="clearAllMessages()" style="width:100%; background: var(--danger); color: white; border: none; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700;">WIPE ALL HISTORY</button>
+      <button onclick="clearAllMessages()" style="width:100%; background: var(--danger); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px;">
+        ⚠️ WIPE ALL MESSAGES
+      </button>
     </div>
   </aside>
 
   <main class="chat-view">
     <header class="chat-header">
-      <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-      <div style="font-weight: 700;"># Public Channel</div>
-      <div id="my-name" style="font-size: 11px; color: var(--text-light);"></div>
+      <div style="font-weight: 700;">Public Channel</div>
+      <div id="my-name" style="font-size: 12px; color: var(--text-light);"></div>
     </header>
     
     <div class="messages" id="chat-box"></div>
@@ -105,7 +99,7 @@
     <div class="input-container">
       <div id="reply-pre" style="display:none; font-size: 11px; padding: 8px; background: #eee; border-radius: 8px 8px 0 0;"></div>
       <div class="input-bar">
-        <input type="text" id="msg-in" placeholder="Message..." autocomplete="off">
+        <input type="text" id="msg-in" placeholder="Message...">
         <button class="btn-send" onclick="send()">Send</button>
       </div>
     </div>
@@ -113,29 +107,6 @@
 </div>
 
 <script type="module">
-  // 1. PWA GENERATION (Manifest & Service Worker)
-  const manifest = {
-    name: "Cloud Chat Pro",
-    short_name: "CloudChat",
-    start_url: ".",
-    display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#6366F1",
-    icons: [{ src: "https://cdn-icons-png.flaticon.com/512/5968/5968756.png", sizes: "512x512", type: "image/png" }]
-  };
-  const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-  document.getElementById('pwa-manifest').setAttribute('href', URL.createObjectURL(manifestBlob));
-
-  // Service Worker Blob
-  if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('SW Registered'))
-      .catch(err => console.log('SW Failed', err));
-  });
-}
-
-  // 2. FIREBASE LOGIC
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, push, onValue, set, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
@@ -151,19 +122,17 @@
   let user = null;
   let replyData = null;
 
-  window.toggleMenu = () => {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('overlay').classList.toggle('active');
-  };
-
   window.start = () => {
     const val = document.getElementById('user-in').value.trim();
     if(!val) return;
     user = val;
     document.getElementById('auth').style.display = 'none';
-    document.getElementById('my-name').innerText = `User: ${user}`;
+    document.getElementById('my-name').innerText = `Logged in as: ${user}`;
     
-    if(user === "__S__") document.getElementById('admin-panel').style.display = 'block';
+    // Check for Admin status
+    if(user === "__S__") {
+      document.getElementById('admin-panel').style.display = 'block';
+    }
 
     const uRef = ref(db, `chatSystem/users/${user}`);
     set(uRef, { typing: false, online: true });
@@ -174,24 +143,43 @@
   window.send = () => {
     const input = document.getElementById('msg-in');
     if(!input.value.trim()) return;
-    push(ref(db, 'chatSystem/messages'), { user, text: input.value, time: Date.now(), reply: replyData });
+
+    push(ref(db, 'chatSystem/messages'), {
+      user: user,
+      text: input.value,
+      time: Date.now(),
+      reply: replyData
+    });
+    
     input.value = '';
     replyData = null;
     document.getElementById('reply-pre').style.display = 'none';
   };
 
   window.clearAllMessages = () => {
-    if (user === "__S__" && confirm("Wipe all messages?")) remove(ref(db, 'chatSystem/messages'));
+    if (user !== "__S__") return alert("Unauthorized");
+    if (confirm("Delete ALL chat history?")) {
+      remove(ref(db, 'chatSystem/messages'));
+    }
   };
 
-  window.deleteMsg = (id) => { if (confirm("Delete?")) remove(ref(db, `chatSystem/messages/${id}`)); };
+  window.deleteMsg = (id) => {
+    if (confirm("Delete this message?")) {
+      remove(ref(db, `chatSystem/messages/${id}`));
+    }
+  };
+
   window.handleReply = (u, t) => {
     replyData = { u, t };
     const pre = document.getElementById('reply-pre');
     pre.style.display = 'block';
-    pre.innerText = `Replying to ${u}...`;
+    pre.innerText = `Replying to ${u}: ${t.substring(0,20)}...`;
+    document.getElementById('msg-in').focus();
   };
-  window.react = (id, emoji) => set(ref(db, `chatSystem/messages/${id}/reactions/${user}`), emoji);
+
+  window.react = (id, emoji) => {
+    set(ref(db, `chatSystem/messages/${id}/reactions/${user}`), emoji);
+  };
 
   function sync() {
     const input = document.getElementById('msg-in');
@@ -205,8 +193,11 @@
       const box = document.getElementById('chat-box');
       box.innerHTML = '';
       snap.forEach((child) => {
-        const id = child.key; const m = child.val(); const isMe = m.user === user;
+        const id = child.key;
+        const m = child.val();
+        const isMe = m.user === user;
         const reactions = m.reactions ? Object.values(m.reactions) : [];
+        
         const row = document.createElement('div');
         row.className = `msg-row ${isMe ? 'me' : 'them'}`;
         row.innerHTML = `
@@ -233,8 +224,14 @@
       uBox.innerHTML = '';
       const users = snap.val() || {};
       let typers = [];
+
       Object.entries(users).forEach(([name, d]) => {
-        uBox.innerHTML += `<div class="user-tile"><div class="avatar">${name[0].toUpperCase()}<div class="status-dot"></div></div><div style="font-size:14px; font-weight:500;">${name} ${name === "__S__" ? '👑' : ''}</div></div>`;
+        uBox.innerHTML += `
+          <div class="user-tile">
+            <div class="avatar">${name[0].toUpperCase()}<div class="status-dot"></div></div>
+            <div style="font-size:14px; font-weight:500;">${name} ${name === "__S__" ? '👑' : ''}</div>
+          </div>
+        `;
         if(d.typing && name !== user) typers.push(name);
       });
       tBox.innerText = typers.length ? `${typers[0]} is typing...` : '';
